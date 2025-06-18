@@ -9,6 +9,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  video_player: ^2.7.0
 
 dev_dependencies:
   flutter_test:
@@ -17,3 +18,17 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  fonts:
+    - family: Sriracha
+      fonts:
+      - asset: lib/assets/fonts/Sriracha-Regular.ttf
+    - family: Bodoni_Italic
+      fonts:
+      - asset: lib/assets/fonts/BodoniModa-Italic-VariableFont_opsz,wght.ttf
+    - family: TenorSans
+      fonts:
+      - asset: lib/assets/fonts/TenorSans-Regular.ttf
+  assets:
+    - lib/assets/icons/ 
+    - lib/assets/images/
+    - lib/assets/videos/
