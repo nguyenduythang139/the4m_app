@@ -29,7 +29,7 @@ class WaitingScreen extends StatelessWidget {
             top: screenHeight * 0.1,
             left: 0,
             child: Container(
-              width: screenWidth * 0.75,
+              width: screenWidth * 0.9,
               height: 61,
               decoration: BoxDecoration(
                 color: Colors.white,
@@ -44,12 +44,12 @@ class WaitingScreen extends StatelessWidget {
           // Text "Xin chào!"
           Positioned(
             top: screenHeight * 0.105,
-            left: screenWidth * 0.33,
+            left: screenWidth * 0.4,
             child: Text(
               'Xin chào!',
               style: TextStyle(
                 color: Colors.black,
-                fontSize: 44,
+                fontSize: 36,
                 fontFamily: 'Tenor Sans',
                 fontWeight: FontWeight.w400,
                 height: 1.25,
@@ -68,7 +68,7 @@ class WaitingScreen extends StatelessWidget {
                 shape: BoxShape.circle,
                 border: Border.all(width: 7, color: Colors.white),
                 image: DecorationImage(
-                  image: AssetImage('lib/assets/images/logo.png'),
+                  image: AssetImage('lib/assets/images/Logo.png'),
                   fit: BoxFit.cover,
                 ),
               ),
@@ -118,8 +118,9 @@ class WaitingScreen extends StatelessWidget {
           ),
 
           // Nút Đăng nhập
+          // Nút Đăng nhập
           Positioned(
-            bottom: screenHeight * 0.11,
+            bottom: screenHeight * 0.12,
             left: 16,
             right: 16,
             child: ElevatedButton(
@@ -134,10 +135,15 @@ class WaitingScreen extends StatelessWidget {
                 backgroundColor: Colors.black,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
+                  side: const BorderSide(
+                    // Thêm viền trắng
+                    color: Colors.white,
+                    width: 1,
+                  ),
                 ),
-                minimumSize: Size(double.infinity, 55),
+                minimumSize: const Size(double.infinity, 55),
               ),
-              child: Text(
+              child: const Text(
                 'Đăng nhập',
                 style: TextStyle(
                   color: Colors.white,
