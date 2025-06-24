@@ -66,10 +66,10 @@ class _LoginScreenState extends State<LoginScreen> {
               CircleAvatar(
                 radius: 64,
                 backgroundColor: Colors.grey[300],
-                backgroundImage: const AssetImage("lib/assets/images/logo.png"),
+                backgroundImage: const AssetImage("lib/assets/images/Logo.png"),
               ),
 
-              const SizedBox(height: 40),
+              const SizedBox(height: 12),
 
               // 🟢 Tiêu đề chào mừng
               const Text(
@@ -81,7 +81,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
 
-              const SizedBox(height: 8),
+              const SizedBox(height: 5),
 
               // 🔵 Phụ đề
               const Text(
@@ -93,7 +93,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
 
-              const SizedBox(height: 32),
+              const SizedBox(height: 20),
 
               // 🟡 Nhãn Email
               _buildLabel('Email'),
@@ -106,7 +106,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 onChanged: (value) => _email = value,
               ),
 
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
 
               // 🟡 Nhãn Mật khẩu
               _buildLabel('Mật khẩu'),
@@ -145,7 +145,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
 
-              const SizedBox(height: 12),
+              const SizedBox(height: 5),
 
               // 🔘 Nút Đăng nhập
               _buildMainButton(
