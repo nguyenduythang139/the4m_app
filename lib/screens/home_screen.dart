@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:the4m_app/screens/product_detail_screen.dart';
 import 'package:the4m_app/widgets/home_banner.dart';
 import 'package:the4m_app/widgets/title.dart';
 import 'package:the4m_app/widgets/devider.dart';
 import 'package:the4m_app/widgets/similar_product.dart';
 import 'package:video_player/video_player.dart';
+import 'package:the4m_app/widgets/bottom_navigation.dart';
 
 //models
 import 'package:the4m_app/models/product.dart';
@@ -18,6 +20,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final List<String> categories = ['All', 'Áo', 'Quần', 'Nón'];
   int currentIndex = 0;
+  int selectedIndex = 0;
 
   final List<String> brands = [
     'lib/assets/images/brand_1.png',
@@ -166,46 +169,56 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     itemBuilder: (context, index) {
                       final product = products[index];
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: AspectRatio(
-                              aspectRatio: 1,
-                              child: Image.asset(
-                                product.imagePath,
-                                fit: BoxFit.cover,
-                              ),
+                      return GestureDetector(
+                        onTap: () {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ProductDetailScreen(),
                             ),
-                          ),
-                          SizedBox(height: 10),
-                          Expanded(
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 3,
-                              ),
-                              child: Text(
-                                product.name,
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  color: Color(0xff333333),
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
+                          );
+                        },
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: AspectRatio(
+                                aspectRatio: 1,
+                                child: Image.asset(
+                                  product.imagePath,
+                                  fit: BoxFit.cover,
                                 ),
                               ),
                             ),
-                          ),
-                          SizedBox(height: 4),
-                          Text(
-                            product.price,
-                            style: TextStyle(
-                              color: Color(0xffDD8560),
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
+                            SizedBox(height: 10),
+                            Expanded(
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 3,
+                                ),
+                                child: Text(
+                                  product.name,
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    color: Color(0xff333333),
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
                             ),
-                          ),
-                        ],
+                            SizedBox(height: 4),
+                            Text(
+                              product.price,
+                              style: TextStyle(
+                                color: Color(0xffDD8560),
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
                       );
                     },
                   ),
@@ -495,6 +508,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ],
                     ),
                     SizedBox(height: 40),
+                    //footer
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -565,12 +579,21 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     SizedBox(height: 20),
                     Center(child: Text('Copyright© 4M All Rights Reserved.')),
+                    SizedBox(height: 20),
                   ],
                 ),
               ],
             ),
           ),
         ),
+      ),
+      bottomNavigationBar: BottomNavBar(
+        currentIndex: selectedIndex,
+        onTap: (index) {
+          setState(() {
+            selectedIndex = index;
+          });
+        },
       ),
     );
   }
