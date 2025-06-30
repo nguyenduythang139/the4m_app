@@ -68,7 +68,9 @@ class _CartScreenState extends State<CartScreen> {
                   Align(
                     alignment: Alignment.centerRight,
                     child: IconButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
                       icon: Icon(Icons.close_outlined),
                     ),
                   ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the4m_app/screens/cart_screen.dart';
 
 class Header extends StatefulWidget implements PreferredSizeWidget {
   const Header({super.key});
@@ -60,7 +61,10 @@ class _HeaderState extends State<Header> {
                 ),
                 IconButton(
                   onPressed: () {
-                    // TODO: Thêm chức năng giỏ hàng
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => CartScreen()),
+                    );
                   },
                   icon: const Icon(Icons.shopping_bag_outlined),
                   iconSize: 30,

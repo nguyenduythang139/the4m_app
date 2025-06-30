@@ -7,6 +7,7 @@ import 'package:the4m_app/widgets/devider.dart';
 import 'package:the4m_app/widgets/similar_product.dart';
 import 'package:video_player/video_player.dart';
 import 'package:the4m_app/widgets/bottom_navigation.dart';
+import 'package:the4m_app/widgets/header.dart';
 
 //models
 import 'package:the4m_app/models/product.dart';
@@ -56,467 +57,441 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        toolbarHeight: 70,
-        leading: IconButton(
-          onPressed: () {},
-          icon: Icon(Icons.menu),
-          iconSize: 30,
-          color: Colors.black,
-        ),
-        title: Text(
-          '4&M',
-          style: TextStyle(
-            fontFamily: 'Sriracha',
-            fontSize: 36,
-            color: Colors.black,
-          ),
-        ),
-        centerTitle: true, // Canh giữa
-        actions: [
-          IconButton(
-            onPressed: () {},
-            icon: Icon(Icons.search),
-            iconSize: 30,
-            color: Colors.black,
-          ),
-          IconButton(
-            onPressed: () {},
-            icon: Icon(Icons.shopping_bag_outlined),
-            iconSize: 30,
-            color: Colors.black,
-          ),
-        ],
-      ),
+      backgroundColor: Colors.white,
       body: SafeArea(
-        child: Container(
-          color: Colors.white,
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                HomeBanner(),
-                SizedBox(height: 40),
-                TitleWithDivider(title: 'MỚI NHẤT'),
-                SizedBox(height: 20),
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: List.generate(categories.length, (index) {
-                      bool isActive = currentIndex == index;
-                      return GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            currentIndex = index;
-                          });
+        child: Column(
+          children: [
+            Header(),
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    HomeBanner(),
+                    SizedBox(height: 40),
+                    TitleWithDivider(title: 'MỚI NHẤT'),
+                    SizedBox(height: 20),
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: List.generate(categories.length, (index) {
+                          bool isActive = currentIndex == index;
+                          return GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                currentIndex = index;
+                              });
+                            },
+                            child: Container(
+                              margin: EdgeInsets.only(right: 20),
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 8,
+                              ),
+                              child: Column(
+                                children: [
+                                  Text(
+                                    categories[index],
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight:
+                                          isActive
+                                              ? FontWeight.bold
+                                              : FontWeight.normal,
+                                      color:
+                                          isActive
+                                              ? Colors.black
+                                              : Color(0xff888888),
+                                    ),
+                                  ),
+                                  SizedBox(height: 2),
+                                  AnimatedContainer(
+                                    duration: Duration(milliseconds: 100),
+                                    width: 6,
+                                    height: 6,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color:
+                                          isActive
+                                              ? Color(0xffDD8560)
+                                              : Colors.transparent,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        }),
+                      ),
+                    ),
+                    SizedBox(height: 5),
+                    //danh muc san pham
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      child: GridView.builder(
+                        itemCount: products.length,
+                        shrinkWrap: true,
+                        physics: NeverScrollableScrollPhysics(),
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          crossAxisSpacing: 16,
+                          mainAxisSpacing: 20,
+                          childAspectRatio: 0.7,
+                        ),
+                        itemBuilder: (context, index) {
+                          final product = products[index];
+                          return GestureDetector(
+                            onTap: () {
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => ProductDetailScreen(),
+                                ),
+                              );
+                            },
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: AspectRatio(
+                                    aspectRatio: 1,
+                                    child: Image.asset(
+                                      product.imagePath,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(height: 10),
+                                Expanded(
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 3,
+                                    ),
+                                    child: Text(
+                                      product.name,
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        color: Color(0xff333333),
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(height: 4),
+                                Text(
+                                  product.price,
+                                  style: TextStyle(
+                                    color: Color(0xffDD8560),
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
                         },
-                        child: Container(
-                          margin: EdgeInsets.only(right: 20),
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 8,
+                      ),
+                    ),
+                    SizedBox(height: 30),
+                    Center(
+                      child: GestureDetector(
+                        onTap: () {},
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              'KHÁM PHÁ THÊM',
+                              style: TextStyle(
+                                color: Color(0xff333333),
+                                fontSize: 15,
+                                fontFamily: 'TenorSans',
+                              ),
+                            ),
+                            SizedBox(width: 5),
+                            Icon(
+                              Icons.arrow_right_alt,
+                              color: Colors.black,
+                              size: 30,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 30),
+                    Devider(),
+                    SizedBox(height: 30),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: GridView.builder(
+                        itemCount: brands.length,
+                        shrinkWrap: true,
+                        physics: NeverScrollableScrollPhysics(),
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 3,
+                          crossAxisSpacing: 40,
+                          mainAxisSpacing: 25,
+                          childAspectRatio: 2.6,
+                        ),
+                        itemBuilder: (context, index) {
+                          return Image.asset(brands[index], fit: BoxFit.cover);
+                        },
+                      ),
+                    ),
+                    SizedBox(height: 30),
+                    Devider(),
+                    SizedBox(height: 40),
+                    Stack(
+                      children: [
+                        _controller.value.isInitialized
+                            ? AspectRatio(
+                              aspectRatio: _controller.value.aspectRatio,
+                              child: VideoPlayer(_controller),
+                            )
+                            : CircularProgressIndicator(),
+                        Positioned.fill(
+                          child: Center(
+                            child: FloatingActionButton(
+                              onPressed: () {
+                                setState(() {
+                                  _controller.value.isPlaying
+                                      ? _controller.pause()
+                                      : _controller.play();
+                                });
+                              },
+                              backgroundColor:
+                                  _controller.value.isPlaying
+                                      ? Colors.transparent
+                                      : Colors.grey.withOpacity(0.2),
+                              child: Icon(
+                                _controller.value.isPlaying
+                                    ? Icons.pause
+                                    : Icons.play_arrow,
+                                color: Color(0xffDD9560),
+                              ),
+                            ),
                           ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 40),
+                    TitleWithDivider(title: 'DÀNH CHO BẠN'),
+                    SizedBox(height: 20),
+                    SimilarProduct(),
+                    SizedBox(height: 40),
+                    Column(
+                      children: [
+                        Text(
+                          '@TOP TRENDING',
+                          style: TextStyle(fontSize: 20, letterSpacing: 4.0),
+                        ),
+                        SizedBox(height: 20),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            /*Container(
+                              decoration: BoxDecoration(
+                                color: Colors.orange,
+                                borderRadius: BorderRadius.circular(2),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(5),
+                                child: Text(
+                                  '#2025',
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                              ),
+                            ),*/
+                            Text('#2025'),
+                            Text('#aopolo'),
+                            Text('#aopolo'),
+                            Text('#non'),
+                          ],
+                        ),
+                        SizedBox(height: 15),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Text('#quanthun'),
+                            Text('#quanjean'),
+                            Text('#aokhoac'),
+                            Text('#boss'),
+                          ],
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 40),
+                    Column(
+                      children: [
+                        Align(
+                          alignment: Alignment.center,
                           child: Column(
                             children: [
                               Text(
-                                categories[index],
+                                '4&M',
                                 style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight:
-                                      isActive
-                                          ? FontWeight.bold
-                                          : FontWeight.normal,
-                                  color:
-                                      isActive
-                                          ? Colors.black
-                                          : Color(0xff888888),
+                                  fontFamily: 'Sriracha',
+                                  fontSize: 36,
+                                  color: Colors.black,
                                 ),
                               ),
-                              SizedBox(height: 2),
-                              AnimatedContainer(
-                                duration: Duration(milliseconds: 100),
-                                width: 6,
-                                height: 6,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color:
-                                      isActive
-                                          ? Color(0xffDD8560)
-                                          : Colors.transparent,
+                              SizedBox(height: 5),
+                              Text(
+                                'Mang phong cách sống đẳng cấp đến gần\nhơn với mọi quý ông hiện đại là nguồn\ncảm hứng mỗi ngày của chúng tôi.',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(color: Color(0xff333333)),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 10),
+                    Devider(),
+                    SizedBox(height: 10),
+                    Wrap(
+                      spacing: 20,
+                      runSpacing: 20,
+                      alignment: WrapAlignment.center,
+                      children: [
+                        SizedBox(
+                          width: 150,
+                          child: Column(
+                            children: [
+                              Image.asset(
+                                'lib/assets/images/home_ic1.png',
+                                width: 40,
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Giao hàng nhanh chóng và miễn phí',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(fontSize: 13),
+                              ),
+                            ],
+                          ),
+                        ),
+                        SizedBox(
+                          width: 150,
+                          child: Column(
+                            children: [
+                              Image.asset(
+                                'lib/assets/images/home_ic2.png',
+                                width: 40,
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Sản phẩm thân thiện môi trường',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(fontSize: 13),
+                              ),
+                            ],
+                          ),
+                        ),
+                        SizedBox(
+                          width: 150,
+                          child: Column(
+                            children: [
+                              Image.asset(
+                                'lib/assets/images/home_ic3.png',
+                                width: 40,
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Sản phẩm thiết kế lịch lãm và sang trọng',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(fontSize: 13),
+                              ),
+                            ],
+                          ),
+                        ),
+                        SizedBox(
+                          width: 150,
+                          child: Column(
+                            children: [
+                              Image.asset(
+                                'lib/assets/images/home_ic4.png',
+                                width: 40,
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Dễ dàng đổi trả sản phẩm 24/7',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(fontSize: 13),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 20),
+                    Align(
+                      alignment: Alignment.center,
+                      child: Image.asset(
+                        'lib/assets/images/home_ic5.png',
+                        width: 70,
+                      ),
+                    ),
+                    SizedBox(height: 40),
+                    Column(
+                      children: [
+                        Align(
+                          alignment: Alignment.center,
+                          child: Column(
+                            children: [
+                              Text(
+                                'THEO DÕI',
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  letterSpacing: 4.0,
+                                ),
+                              ),
+                              SizedBox(height: 10),
+                              GestureDetector(
+                                onTap: () {},
+                                child: Image.asset(
+                                  'lib/assets/images/instagram.png',
+                                  width: 25,
                                 ),
                               ),
                             ],
                           ),
                         ),
-                      );
-                    }),
-                  ),
-                ),
-                SizedBox(height: 5),
-                //danh muc san pham
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                  child: GridView.builder(
-                    itemCount: products.length,
-                    shrinkWrap: true,
-                    physics: NeverScrollableScrollPhysics(),
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      crossAxisSpacing: 16,
-                      mainAxisSpacing: 20,
-                      childAspectRatio: 0.7,
-                    ),
-                    itemBuilder: (context, index) {
-                      final product = products[index];
-                      return GestureDetector(
-                        onTap: () {
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => ProductDetailScreen(),
-                            ),
-                          );
-                        },
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
+                        SizedBox(height: 30),
+                        Wrap(
+                          spacing: 20,
+                          runSpacing: 20,
                           children: [
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(8),
-                              child: AspectRatio(
-                                aspectRatio: 1,
-                                child: Image.asset(
-                                  product.imagePath,
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
+                            buildInstagramItem(
+                              'lib/assets/images/instagram_1.png',
+                              '@_Thang',
                             ),
-                            SizedBox(height: 10),
-                            Expanded(
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 3,
-                                ),
-                                child: Text(
-                                  product.name,
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    color: Color(0xff333333),
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ),
+                            buildInstagramItem(
+                              'lib/assets/images/instagram_2.png',
+                              '@_Tin',
                             ),
-                            SizedBox(height: 4),
-                            Text(
-                              product.price,
-                              style: TextStyle(
-                                color: Color(0xffDD8560),
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                              ),
+                            buildInstagramItem(
+                              'lib/assets/images/instagram_3.png',
+                              '@_Phuoc',
+                            ),
+                            buildInstagramItem(
+                              'lib/assets/images/instagram_4.png',
+                              '@_Khoa',
                             ),
                           ],
                         ),
-                      );
-                    },
-                  ),
-                ),
-                SizedBox(height: 30),
-                Center(
-                  child: GestureDetector(
-                    onTap: () {},
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          'KHÁM PHÁ THÊM',
-                          style: TextStyle(
-                            color: Color(0xff333333),
-                            fontSize: 15,
-                            fontFamily: 'TenorSans',
-                          ),
-                        ),
-                        SizedBox(width: 5),
-                        Icon(
-                          Icons.arrow_right_alt,
-                          color: Colors.black,
-                          size: 30,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                SizedBox(height: 30),
-                Devider(),
-                SizedBox(height: 30),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: GridView.builder(
-                    itemCount: brands.length,
-                    shrinkWrap: true,
-                    physics: NeverScrollableScrollPhysics(),
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 3,
-                      crossAxisSpacing: 40,
-                      mainAxisSpacing: 25,
-                      childAspectRatio: 2.6,
-                    ),
-                    itemBuilder: (context, index) {
-                      return Image.asset(brands[index], fit: BoxFit.cover);
-                    },
-                  ),
-                ),
-                SizedBox(height: 30),
-                Devider(),
-                SizedBox(height: 40),
-                Stack(
-                  children: [
-                    _controller.value.isInitialized
-                        ? AspectRatio(
-                          aspectRatio: _controller.value.aspectRatio,
-                          child: VideoPlayer(_controller),
-                        )
-                        : CircularProgressIndicator(),
-                    Positioned.fill(
-                      child: Center(
-                        child: FloatingActionButton(
-                          onPressed: () {
-                            setState(() {
-                              _controller.value.isPlaying
-                                  ? _controller.pause()
-                                  : _controller.play();
-                            });
-                          },
-                          backgroundColor:
-                              _controller.value.isPlaying
-                                  ? Colors.transparent
-                                  : Colors.grey.withOpacity(0.2),
-                          child: Icon(
-                            _controller.value.isPlaying
-                                ? Icons.pause
-                                : Icons.play_arrow,
-                            color: Color(0xffDD9560),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 40),
-                TitleWithDivider(title: 'DÀNH CHO BẠN'),
-                SizedBox(height: 20),
-                SimilarProduct(),
-                SizedBox(height: 40),
-                Column(
-                  children: [
-                    Text(
-                      '@TOP TRENDING',
-                      style: TextStyle(fontSize: 20, letterSpacing: 4.0),
-                    ),
-                    SizedBox(height: 20),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        /*Container(
-                          decoration: BoxDecoration(
-                            color: Colors.orange,
-                            borderRadius: BorderRadius.circular(2),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(5),
-                            child: Text(
-                              '#2025',
-                              style: TextStyle(color: Colors.white),
-                            ),
-                          ),
-                        ),*/
-                        Text('#2025'),
-                        Text('#aopolo'),
-                        Text('#aopolo'),
-                        Text('#non'),
-                      ],
-                    ),
-                    SizedBox(height: 15),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        Text('#quanthun'),
-                        Text('#quanjean'),
-                        Text('#aokhoac'),
-                        Text('#boss'),
+                        SizedBox(height: 40),
+                        //footer
+                        Footer(),
+                        SizedBox(height: 30),
                       ],
                     ),
                   ],
                 ),
-                SizedBox(height: 40),
-                Column(
-                  children: [
-                    Align(
-                      alignment: Alignment.center,
-                      child: Column(
-                        children: [
-                          Text(
-                            '4&M',
-                            style: TextStyle(
-                              fontFamily: 'Sriracha',
-                              fontSize: 36,
-                              color: Colors.black,
-                            ),
-                          ),
-                          SizedBox(height: 5),
-                          Text(
-                            'Mang phong cách sống đẳng cấp đến gần\nhơn với mọi quý ông hiện đại là nguồn\ncảm hứng mỗi ngày của chúng tôi.',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(color: Color(0xff333333)),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 10),
-                Devider(),
-                SizedBox(height: 10),
-                Wrap(
-                  spacing: 20,
-                  runSpacing: 20,
-                  alignment: WrapAlignment.center,
-                  children: [
-                    SizedBox(
-                      width: 150,
-                      child: Column(
-                        children: [
-                          Image.asset(
-                            'lib/assets/images/home_ic1.png',
-                            width: 40,
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            'Giao hàng nhanh chóng và miễn phí',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(fontSize: 13),
-                          ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(
-                      width: 150,
-                      child: Column(
-                        children: [
-                          Image.asset(
-                            'lib/assets/images/home_ic2.png',
-                            width: 40,
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            'Sản phẩm thân thiện môi trường',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(fontSize: 13),
-                          ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(
-                      width: 150,
-                      child: Column(
-                        children: [
-                          Image.asset(
-                            'lib/assets/images/home_ic3.png',
-                            width: 40,
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            'Sản phẩm thiết kế lịch lãm và sang trọng',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(fontSize: 13),
-                          ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(
-                      width: 150,
-                      child: Column(
-                        children: [
-                          Image.asset(
-                            'lib/assets/images/home_ic4.png',
-                            width: 40,
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            'Dễ dàng đổi trả sản phẩm 24/7',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(fontSize: 13),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 20),
-                Align(
-                  alignment: Alignment.center,
-                  child: Image.asset(
-                    'lib/assets/images/home_ic5.png',
-                    width: 70,
-                  ),
-                ),
-                SizedBox(height: 40),
-                Column(
-                  children: [
-                    Align(
-                      alignment: Alignment.center,
-                      child: Column(
-                        children: [
-                          Text(
-                            'THEO DÕI',
-                            style: TextStyle(fontSize: 20, letterSpacing: 4.0),
-                          ),
-                          SizedBox(height: 10),
-                          GestureDetector(
-                            onTap: () {},
-                            child: Image.asset(
-                              'lib/assets/images/instagram.png',
-                              width: 25,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(height: 30),
-                    Wrap(
-                      spacing: 20,
-                      runSpacing: 20,
-                      children: [
-                        buildInstagramItem(
-                          'lib/assets/images/instagram_1.png',
-                          '@_Thang',
-                        ),
-                        buildInstagramItem(
-                          'lib/assets/images/instagram_2.png',
-                          '@_Tin',
-                        ),
-                        buildInstagramItem(
-                          'lib/assets/images/instagram_3.png',
-                          '@_Phuoc',
-                        ),
-                        buildInstagramItem(
-                          'lib/assets/images/instagram_4.png',
-                          '@_Khoa',
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 40),
-                    //footer
-                    Footer(),
-                    SizedBox(height: 30),
-                  ],
-                ),
-              ],
+              ),
             ),
-          ),
+          ],
         ),
       ),
       bottomNavigationBar: BottomNavBar(
