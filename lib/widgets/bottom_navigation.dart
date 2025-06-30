@@ -20,19 +20,19 @@ class BottomNavBar extends StatelessWidget {
           MaterialPageRoute(builder: (context) => const HomeScreen()),
           (route) => false,
         );
-      case 1:
+      //case 1:
       // Navigator.pushReplacement(
       //   context,
       //   MaterialPageRoute(builder: (context) => const SearchScreen()),
       // );
       // break;
-      case 2:
+      //case 2:
       //  Navigator.pushAndRemoveUntil(
       //       context,
       //       MaterialPageRoute(builder: (context) => const HomeScreen()),
       //       (route) => false,
       //     );
-      case 3:
+      //case 3:
       //  Navigator.pushAndRemoveUntil(
       //         context,
       //         MaterialPageRoute(builder: (context) => const HomeScreen()),
