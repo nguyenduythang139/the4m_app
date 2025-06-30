@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:the4m_app/screens/blog_screen.dart';
+import 'package:the4m_app/screens/our_story_screen.dart';
 import 'package:the4m_app/widgets/devider.dart';
+import 'package:the4m_app/screens/contact_screen.dart';
 
 class Footer extends StatelessWidget {
   const Footer({super.key});
@@ -17,7 +20,7 @@ class Footer extends StatelessWidget {
                 child: Image.asset('lib/assets/images/facebook.png', width: 20),
               ),
               Container(
-                margin: EdgeInsets.symmetric(horizontal: 30),
+                margin: const EdgeInsets.symmetric(horizontal: 30),
                 child: GestureDetector(
                   onTap: () => {},
                   child: Image.asset(
@@ -32,11 +35,11 @@ class Footer extends StatelessWidget {
               ),
             ],
           ),
-          SizedBox(height: 30),
-          Devider(),
-          SizedBox(height: 30),
+          const SizedBox(height: 30),
+          const Devider(),
+          const SizedBox(height: 30),
           Column(
-            children: [
+            children: const [
               Text(
                 'support@4M.design',
                 style: TextStyle(color: Color(0xff333333)),
@@ -48,26 +51,59 @@ class Footer extends StatelessWidget {
               ),
             ],
           ),
-          SizedBox(height: 30),
-          Devider(),
-          SizedBox(height: 30),
+          const SizedBox(height: 30),
+          const Devider(),
+          const SizedBox(height: 30),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              GestureDetector(onTap: () => {}, child: Text('Thông Tin')),
               Container(
-                margin: EdgeInsets.symmetric(horizontal: 30),
+                margin: const EdgeInsets.symmetric(horizontal: 10),
                 child: GestureDetector(
-                  onTap: () => {},
-                  child: Text('Liên Lạc'),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const OurStoryScreen(),
+                      ),
+                    );
+                  },
+                  child: const Text('Thông tin'),
                 ),
               ),
-              GestureDetector(onTap: () => {}, child: Text('Blog')),
+              Container(
+                margin: const EdgeInsets.symmetric(horizontal: 10),
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const ContactScreen(),
+                      ),
+                    );
+                  },
+                  child: const Text('Liên Lạc'),
+                ),
+              ),
+              Container(
+                margin: const EdgeInsets.symmetric(horizontal: 10),
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const BlogScreen(),
+                      ),
+                    );
+                  },
+                  child: const Text('Blog'),
+                ),
+              ),
             ],
           ),
-          SizedBox(height: 20),
-          Center(child: Text('Copyright© 4M All Rights Reserved.')),
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
+          const Center(child: Text('Copyright© 4M All Rights Reserved.')),
+          const SizedBox(height: 20),
         ],
       ),
     );
