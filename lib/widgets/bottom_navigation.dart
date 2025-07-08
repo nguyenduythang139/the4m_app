@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:the4m_app/screens/home_screen.dart';
 import 'package:the4m_app/screens/account_screen.dart';
+import 'package:the4m_app/screens/search_screen.dart';
 
 class BottomNavBar extends StatelessWidget {
   final int currentIndex;
@@ -20,30 +21,27 @@ class BottomNavBar extends StatelessWidget {
           MaterialPageRoute(builder: (context) => const HomeScreen()),
           (route) => false,
         );
+        break;
       case 1:
-      // Navigator.pushReplacement(
-      //   context,
-      //   MaterialPageRoute(builder: (context) => const SearchScreen()),
-      // );
-      // break;
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => SearchScreen()),
+          (route) => false,
+        );
+        break;
       case 2:
-      //  Navigator.pushAndRemoveUntil(
-      //       context,
-      //       MaterialPageRoute(builder: (context) => const HomeScreen()),
-      //       (route) => false,
-      //     );
+        // TODO: Màn hình mua sắm nếu có
+        break;
       case 3:
-      //  Navigator.pushAndRemoveUntil(
-      //         context,
-      //         MaterialPageRoute(builder: (context) => const HomeScreen()),
-      //         (route) => false,
-      //       );
+        // TODO: Màn hình yêu thích nếu có
+        break;
       case 4:
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (context) => const Account_Screen()),
           (route) => false,
         );
+        break;
       default:
         break;
     }

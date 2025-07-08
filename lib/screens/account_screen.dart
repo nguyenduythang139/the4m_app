@@ -4,6 +4,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:the4m_app/screens/home_screen.dart';
 import 'package:the4m_app/screens/login_screen.dart';
 import 'package:the4m_app/screens/myinfo_screen.dart';
+import 'package:the4m_app/screens/search_screen.dart';
 import 'package:the4m_app/widgets/bottom_navigation.dart';
 
 class Account_Screen extends StatefulWidget {
@@ -35,6 +36,34 @@ class _Account_ScreenState extends State<Account_Screen> {
         _backgroundImage = File(pickedFile.path);
       });
     }
+  }
+
+  void _handleTabChange(int index) {
+    if (index == 4) return; // Đã ở màn hình Tài khoản
+
+    Widget screen;
+    switch (index) {
+      case 0:
+        screen = const HomeScreen();
+        break;
+      case 1:
+        screen = SearchScreen();
+        break;
+      case 2:
+        // TODO: Thêm màn hình mua sắm
+        return;
+      case 3:
+        // TODO: Thêm màn hình yêu thích
+        return;
+      default:
+        return;
+    }
+
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (context) => screen),
+      (route) => false,
+    );
   }
 
   @override
@@ -189,27 +218,8 @@ class _Account_ScreenState extends State<Account_Screen> {
         ],
       ),
       bottomNavigationBar: BottomNavBar(
-        currentIndex: 4, // tab "Tài khoản"
-        onTap: (index) {
-          switch (index) {
-            case 0:
-              Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(builder: (context) => const HomeScreen()),
-                (route) => false,
-              );
-              break;
-            case 1:
-              break;
-            case 2:
-              break;
-            case 3:
-              break;
-            case 4:
-              // Đã ở màn hiện tại
-              break;
-          }
-        },
+        currentIndex: 4,
+        onTap: _handleTabChange,
       ),
     );
   }
