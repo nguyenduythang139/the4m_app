@@ -107,8 +107,10 @@ class ForgotPasswordScreen extends StatelessWidget {
                     fontSize: 16,
                     color: Color(0xFF333333),
                   ),
-                  contentPadding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 14,
+                  ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
                     borderSide: BorderSide.none,
@@ -127,7 +129,7 @@ class ForgotPasswordScreen extends StatelessWidget {
                     // TODO: xử lý gửi mã xác nhận
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFDD8560),
+                    backgroundColor: Colors.orange,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
@@ -167,8 +169,9 @@ class ForgotPasswordScreen extends StatelessWidget {
                         fontFamily: 'Noto Serif',
                         height: 1.4,
                       ),
-                      recognizer: TapGestureRecognizer()
-                        ..onTap = () => _goBackToLogin(context),
+                      recognizer:
+                          TapGestureRecognizer()
+                            ..onTap = () => _goBackToLogin(context),
                     ),
                   ],
                 ),

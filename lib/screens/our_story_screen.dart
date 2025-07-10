@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:the4m_app/widgets/bottom_navigation.dart';
+import 'package:the4m_app/widgets/drawer.dart';
 import 'package:the4m_app/widgets/footer.dart';
 import 'package:the4m_app/widgets/header.dart';
 
@@ -11,6 +12,7 @@ class OurStoryScreen extends StatefulWidget {
 }
 
 class _OurStoryScreenState extends State<OurStoryScreen> {
+  String selectedPage = "Thông tin";
   final TextEditingController _emailController = TextEditingController();
   int selectedIndex = 0;
 
@@ -32,10 +34,19 @@ class _OurStoryScreenState extends State<OurStoryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawer: CustomDrawer(
+        selectedPage: selectedPage,
+        onSelect: (String newPage) {
+          setState(() {
+            selectedPage = newPage;
+          });
+          Navigator.pop(context);
+        },
+      ),
       appBar: const Header(),
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
@@ -44,15 +55,16 @@ class _OurStoryScreenState extends State<OurStoryScreen> {
             const Text(
               'THÔNG TIN',
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: const TextStyle(
+                color: Colors.black,
                 fontSize: 20,
                 fontFamily: 'Tenor Sans',
+                fontWeight: FontWeight.w400,
+                height: 2.22,
                 letterSpacing: 4,
-                color: Colors.black,
               ),
             ),
             const SizedBox(height: 24),
-
             const Text(
               '4&M (For Men) là cửa hàng thời trang nam hiện đại, chuyên cung cấp những mẫu quần áo mang phong cách trẻ trung, năng động và lịch lãm. Với phương châm “Đẹp – Đơn giản – Đậm chất nam tính”, 4&M luôn cập nhật xu hướng mới để mang đến cho khách hàng những trải nghiệm thời trang độc đáo, phù hợp cho cả đi làm lẫn đi chơi.\n\nĐội ngũ tư vấn nhiệt tình, không gian mua sắm hiện đại, 4&M cam kết mang lại sự hài lòng cho từng khách hàng.',
               style: TextStyle(

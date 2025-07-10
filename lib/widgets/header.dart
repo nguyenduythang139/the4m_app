@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:the4m_app/screens/cart_screen.dart';
+import 'package:the4m_app/utils/smoothPushReplacement.dart';
 
 class Header extends StatefulWidget implements PreferredSizeWidget {
   const Header({super.key});
 
   @override
-  Size get preferredSize => const Size.fromHeight(80); // Tăng để chứa padding top
+  Size get preferredSize => const Size.fromHeight(80);
 
   @override
   State<Header> createState() => _HeaderState();
@@ -16,12 +17,8 @@ class _HeaderState extends State<Header> {
   Widget build(BuildContext context) {
     return Container(
       color: Colors.white,
-      height: 80, // Tăng chiều cao để không bị chật
-      padding: const EdgeInsets.only(
-        top: 20,
-        left: 10,
-        right: 10,
-      ), // Top + giữ nguyên left/right
+      height: 80,
+      padding: const EdgeInsets.only(top: 20, left: 10, right: 10),
       child: Stack(
         alignment: Alignment.center,
         children: [
@@ -29,7 +26,7 @@ class _HeaderState extends State<Header> {
             alignment: Alignment.centerLeft,
             child: IconButton(
               onPressed: () {
-                // TODO: Thêm chức năng menu nếu cần
+                Scaffold.of(context).openDrawer();
               },
               icon: const Icon(Icons.menu),
               iconSize: 30,
@@ -52,19 +49,14 @@ class _HeaderState extends State<Header> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 IconButton(
-                  onPressed: () {
-                    // TODO: Thêm chức năng tìm kiếm
-                  },
+                  onPressed: () {},
                   icon: const Icon(Icons.search),
                   iconSize: 30,
                   color: Colors.black,
                 ),
                 IconButton(
                   onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => CartScreen()),
-                    );
+                    smoothPushReplacementLikePush(context, CartScreen());
                   },
                   icon: const Icon(Icons.shopping_bag_outlined),
                   iconSize: 30,

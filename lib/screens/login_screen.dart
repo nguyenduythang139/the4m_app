@@ -4,6 +4,7 @@ import 'dart:async';
 
 import 'package:the4m_app/screens/home_screen.dart';
 import 'package:the4m_app/screens/register_screen.dart';
+import 'package:the4m_app/utils/smoothPushReplacement.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -128,17 +129,15 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: TextButton(
                   onPressed: () {
                     // TODO: Điều hướng tới màn hình quên mật khẩu
-                    Navigator.push(
+                    smoothPushReplacementLikePush(
                       context,
-                      MaterialPageRoute(
-                        builder: (_) => const ForgotPasswordScreen(),
-                      ),
+                      ForgotPasswordScreen(),
                     );
                   },
                   child: const Text(
                     'Quên mật khẩu?',
                     style: TextStyle(
-                      color: Color(0xFFDD8560),
+                      color: Colors.orange,
                       fontFamily: 'Noto Serif',
                     ),
                   ),
@@ -150,7 +149,7 @@ class _LoginScreenState extends State<LoginScreen> {
               // 🔘 Nút Đăng nhập
               _buildMainButton(
                 text: 'Đăng nhập',
-                color: const Color(0xFFDD8560),
+                color: Colors.orange,
                 onPressed: _handleLogin,
               ),
 
@@ -179,10 +178,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 color: Colors.black,
                 onPressed: () {
                   // ✅ Chuyển sang RegisterScreen
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (_) => RegisterScreen()),
-                  );
+                  smoothPushReplacementLikePush(context, RegisterScreen());
                 },
               ),
 
@@ -204,10 +200,7 @@ class _LoginScreenState extends State<LoginScreen> {
       } else {
         _errorMessage = ''; // ✅ Không có lỗi
         // ✅ Chuyển sang HomeScreen
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const HomeScreen()),
-        );
+        smoothPushReplacementLikePush(context, HomeScreen());
         return;
       }
     });

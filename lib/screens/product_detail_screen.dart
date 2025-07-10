@@ -1,17 +1,28 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:the4m_app/models/product.dart';
+import 'package:the4m_app/screens/account_screen.dart';
+import 'package:the4m_app/screens/blog_screen.dart';
+import 'package:the4m_app/screens/contact_screen.dart';
+import 'package:the4m_app/screens/favorite_screen.dart';
+import 'package:the4m_app/screens/home_screen.dart';
+import 'package:the4m_app/screens/our_story_screen.dart';
+import 'package:the4m_app/utils/smoothPushReplacement.dart';
 import 'package:the4m_app/widgets/devider.dart';
+import 'package:the4m_app/widgets/drawer.dart';
 import 'package:the4m_app/widgets/header.dart';
 import 'package:the4m_app/widgets/footer.dart';
 import 'package:the4m_app/widgets/bottom_navigation.dart';
 import 'package:the4m_app/utils/app_colors.dart';
 import 'package:the4m_app/models/review_model.dart';
 import 'package:the4m_app/widgets/review_item.dart';
-import 'package:the4m_app/models/product_model.dart';
 import 'package:the4m_app/widgets/product_item.dart';
 
 class ProductDetailScreen extends StatefulWidget {
-  const ProductDetailScreen({super.key});
+  final Product product;
+
+  const ProductDetailScreen({super.key, required this.product});
 
   @override
   State<ProductDetailScreen> createState() => _ProductDetailScreenState();
@@ -21,17 +32,46 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   final PageController _pageController = new PageController();
   int _currentPage = 0;
   int selectedPage = 0;
+  String selectedColor = '';
+  String selectedSize = '';
 
   bool isDeliveryExpanded = false;
   bool isReturnExpanded = false;
 
-  final List<String> productDetailImages = [
-    'lib/asset/images/product_detail_1',
-    'lib/asset/images/product_detail_2',
-    'lib/asset/images/product_detail_3',
-    'lib/asset/images/product_detail_1',
-    'lib/asset/images/product_detail_2',
-  ];
+  @override
+  void initState() {
+    super.initState();
+    if (widget.product.mauSac.isNotEmpty)
+      selectedColor = widget.product.mauSac[0];
+    if (widget.product.kichThuoc.isNotEmpty)
+      selectedSize = widget.product.kichThuoc[0];
+  }
+
+  Color getColorFromName(String name) {
+    switch (name.toLowerCase()) {
+      case 'đen':
+        return Color(0xff0D0D0D);
+      case 'trắng':
+        return Color(0xffF6F6E7);
+      case 'nâu':
+        return Color(0xffCEC2AA);
+      case 'xanh navy':
+        return Color(0xff1E3F5A);
+      case 'be':
+        return Color(0xffFFDD95);
+      case 'cam':
+        return Color(0xffFFA600);
+      case 'xanh lá':
+        return Color(0xff288A28);
+      default:
+        return Color(0xff0D0D0D);
+    }
+  }
+
+  String formatCurrency(int amount) {
+    final formatter = NumberFormat.currency(locale: 'vi_VN', symbol: 'VNĐ');
+    return formatter.format(amount);
+  }
 
   List<Review> getSampleReviews() {
     return [
@@ -68,41 +108,17 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     ];
   }
 
-  List<Products> getSampleProducts() {
-    return [
-      Products(
-        name: "Áo thun dáng rộng",
-        imageUrl: "lib/assets/images/product_1.png",
-        price: 300000,
-        isFavorite: true,
-      ),
-      Products(
-        name: "Áo thun dáng rộng",
-        imageUrl: "lib/assets/images/product_2.png",
-        price: 300000,
-        isFavorite: true,
-      ),
-      Products(
-        name: "Áo thun dáng rộng",
-        imageUrl: "lib/assets/images/product_5.png",
-        price: 300000,
-        isFavorite: true,
-      ),
-      Products(
-        name: "Áo thun dáng rộng",
-        imageUrl: "lib/assets/images/product_4.png",
-        price: 300000,
-        isFavorite: true,
-      ),
-    ];
-  }
-
   @override
   Widget build(BuildContext context) {
     final reviews = getSampleReviews();
-    final products = getSampleProducts();
     return Scaffold(
       backgroundColor: Colors.white,
+      drawer: CustomDrawer(
+        selectedPage: "",
+        onSelect: (selected) {
+          smoothPushReplacementLikePush(context, getPageFromLabel(selected));
+        },
+      ),
       body: SafeArea(
         child: Column(
           children: [
@@ -117,10 +133,10 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       height: 400,
                       child: PageView.builder(
                         controller: _pageController,
-                        itemCount: productDetailImages.length,
+                        itemCount: widget.product.hinhAnh.length,
                         itemBuilder: (context, index) {
                           return Image.asset(
-                            productDetailImages[index],
+                            widget.product.hinhAnh[index],
                             fit: BoxFit.cover,
                           );
                         },
@@ -134,7 +150,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     const SizedBox(height: 12),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      children: List.generate(productDetailImages.length, (
+                      children: List.generate(widget.product.hinhAnh.length, (
                         index,
                       ) {
                         bool isActive = _currentPage == index;
@@ -167,7 +183,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Áo Thun Dry Cổ Tròn Nhiều Màu',
+                            widget.product.tenSP +
+                                " - " +
+                                widget.product.thuongHieu,
                             style: TextStyle(
                               fontSize: 16,
                               fontFamily: "TenorSans",
@@ -176,7 +194,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                           ),
                           SizedBox(height: 6),
                           Text(
-                            '300.000 VNĐ',
+                            "${formatCurrency(widget.product.giaMoi)}",
                             style: TextStyle(
                               fontSize: 18,
                               color: AppColors.orange,
@@ -184,30 +202,48 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                           ),
                           SizedBox(height: 20),
                           Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(
-                                'Màu:',
-                                style: TextStyle(fontFamily: "TenorSans"),
-                              ),
-                              SizedBox(width: 8),
                               Row(
                                 children: [
-                                  ColorButton(Colors.black, isSelected: true),
-                                  ColorButton(Colors.orange),
-                                  ColorButton(Colors.brown),
+                                  Text(
+                                    "Màu sắc:",
+                                    style: TextStyle(fontFamily: "TenorSans"),
+                                  ),
+                                  SizedBox(width: 5),
+                                  ...widget.product.mauSac.map(
+                                    (color) => GestureDetector(
+                                      onTap:
+                                          () => setState(() {
+                                            selectedColor = color;
+                                          }),
+                                      child: ColorButton(
+                                        getColorFromName(color),
+                                        isSelected: selectedColor == color,
+                                      ),
+                                    ),
+                                  ),
                                 ],
                               ),
-                              SizedBox(width: 10),
-                              Text(
-                                'Kích cỡ:',
-                                style: TextStyle(fontFamily: "TenorSans"),
-                              ),
-                              SizedBox(width: 8),
                               Row(
                                 children: [
-                                  SizeButton('S', isSelected: true),
-                                  SizeButton('L'),
-                                  SizeButton('M'),
+                                  Text(
+                                    "Kích cỡ:",
+                                    style: TextStyle(fontFamily: "TenorSans"),
+                                  ),
+                                  SizedBox(width: 5),
+                                  ...widget.product.kichThuoc.map(
+                                    (size) => GestureDetector(
+                                      onTap:
+                                          () => setState(() {
+                                            selectedSize = size;
+                                          }),
+                                      child: SizeButton(
+                                        size,
+                                        isSelected: selectedSize == size,
+                                      ),
+                                    ),
+                                  ),
                                 ],
                               ),
                             ],
@@ -262,7 +298,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                           ),
                           SizedBox(height: 6),
                           Text(
-                            "- Vải pha cotton và polyester với công nghệ DRY nhanh khô.\n- Cổ tròn cổ điển.\n- Kiểu dáng cơ bản, phù hợp để mặc riêng lẻ hoặc như một lớp áo bên trong.",
+                            widget.product.chatLieu,
                             style: TextStyle(fontFamily: "TenorSans"),
                           ),
                           SizedBox(height: 20),
@@ -276,7 +312,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                           ),
                           SizedBox(height: 6),
                           Text(
-                            "- Giặt máy nước lạnh\n- Không giặt khô\n- Không sấy khô",
+                            widget.product.baoQuan,
                             style: TextStyle(fontFamily: "TenorSans"),
                           ),
                           SizedBox(height: 20),
@@ -288,7 +324,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                               ),
                               SizedBox(width: 10),
                               Text(
-                                "Không dùng thuốc tấy",
+                                widget.product.thuocTay,
                                 style: TextStyle(fontFamily: "TenorSans"),
                               ),
                             ],
@@ -300,7 +336,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                               Image.asset("lib/assets/images/khonggiatkho.png"),
                               SizedBox(width: 10),
                               Text(
-                                "Không giặt khô",
+                                widget.product.giatKho,
                                 style: TextStyle(fontFamily: "TenorSans"),
                               ),
                             ],
@@ -312,7 +348,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                               Image.asset("lib/assets/images/khongsaykho.png"),
                               SizedBox(width: 10),
                               Text(
-                                "Không sấy khô",
+                                widget.product.sayKho,
                                 style: TextStyle(fontFamily: "TenorSans"),
                               ),
                             ],
@@ -324,7 +360,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                               Image.asset("lib/assets/images/nhietdoui.png"),
                               SizedBox(width: 10),
                               Text(
-                                "Ủi ở nhiệt độ tối đa 110ºC/230ºF",
+                                widget.product.nhietDoUi,
                                 style: TextStyle(fontFamily: "TenorSans"),
                               ),
                             ],
@@ -517,7 +553,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     SizedBox(height: 40),
                     Center(
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        padding: EdgeInsets.symmetric(horizontal: 20),
                         child: Column(
                           children: [
                             Text(
@@ -530,21 +566,60 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                             SizedBox(height: 2),
                             Devider(),
                             SizedBox(height: 20),
-                            SizedBox(
-                              height: 500,
-                              child: GridView.builder(
-                                itemCount: products.length,
-                                gridDelegate:
-                                    SliverGridDelegateWithFixedCrossAxisCount(
-                                      crossAxisCount: 2,
-                                      crossAxisSpacing: 10,
-                                      mainAxisSpacing: 10,
-                                      childAspectRatio: 0.7,
-                                    ),
-                                itemBuilder: (context, index) {
-                                  return ProductItem(product: products[index]);
-                                },
-                              ),
+                            StreamBuilder(
+                              stream:
+                                  FirebaseFirestore.instance
+                                      .collection('SanPham')
+                                      .where(
+                                        'loaiSP',
+                                        isEqualTo: widget.product.loaiSP,
+                                      )
+                                      .limit(4)
+                                      .snapshots(),
+                              builder: (context, snapshot) {
+                                if (snapshot.connectionState ==
+                                    ConnectionState.waiting) {
+                                  return Center(
+                                    child: CircularProgressIndicator(),
+                                  );
+                                }
+                                if (!snapshot.hasData ||
+                                    snapshot.data!.docs.isEmpty) {
+                                  return Text("Không có sản phẩm tương tự");
+                                }
+
+                                final similarProducts =
+                                    snapshot.data!.docs
+                                        .map(
+                                          (doc) => Product.fromMap(
+                                            doc.data() as Map<String, dynamic>,
+                                            doc.id,
+                                          ),
+                                        )
+                                        .where(
+                                          (product) =>
+                                              product.maSP !=
+                                              widget.product.maSP,
+                                        )
+                                        .toList();
+
+                                return GridView.builder(
+                                  itemCount: similarProducts.length,
+                                  shrinkWrap: true,
+                                  gridDelegate:
+                                      SliverGridDelegateWithFixedCrossAxisCount(
+                                        crossAxisCount: 2,
+                                        crossAxisSpacing: 10,
+                                        mainAxisSpacing: 10,
+                                        childAspectRatio: 0.7,
+                                      ),
+                                  itemBuilder: (context, index) {
+                                    return ProductItem(
+                                      product: similarProducts[index],
+                                    );
+                                  },
+                                );
+                              },
                             ),
                           ],
                         ),
@@ -615,4 +690,23 @@ Widget SizeButton(String size, {bool isSelected = false}) {
       ),
     ),
   );
+}
+
+Widget getPageFromLabel(String label) {
+  switch (label) {
+    case "Trang chủ":
+      return HomeScreen();
+    case "Yêu thích":
+      return FavoriteScreen();
+    case "Tài khoản":
+      return Account_Screen();
+    case "Thông tin":
+      return OurStoryScreen();
+    case "Liên lạc":
+      return ContactScreen();
+    case "Blog":
+      return BlogScreen();
+    default:
+      return HomeScreen();
+  }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the4m_app/widgets/drawer.dart';
 import '../widgets/header.dart';
 import '../widgets/footer.dart';
 import '../widgets/bottom_navigation.dart';
@@ -11,6 +12,8 @@ class ContactScreen extends StatefulWidget {
 }
 
 class _ContactScreenState extends State<ContactScreen> {
+  String selectedPage = "Liên lạc";
+
   int _currentIndex = 1; // Ví dụ Contact là tab index 1 (Tìm kiếm)
 
   static const iconColor = Color(0xFFDD8560);
@@ -25,22 +28,29 @@ class _ContactScreenState extends State<ContactScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
+      drawer: CustomDrawer(
+        selectedPage: selectedPage,
+        onSelect: (String newPage) {
+          setState(() {
+            selectedPage = newPage;
+          });
+          Navigator.pop(context);
+        },
+      ),
       appBar: const Header(),
-
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 10),
-
             Center(
               child: Text(
                 'LIÊN HỆ',
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   color: Colors.black,
-                  fontSize: 18,
+                  fontSize: 20,
                   fontFamily: 'Tenor Sans',
                   fontWeight: FontWeight.w400,
                   height: 2.22,
@@ -48,9 +58,7 @@ class _ContactScreenState extends State<ContactScreen> {
                 ),
               ),
             ),
-
             const SizedBox(height: 20),
-
             const Text(
               'Cần hỗ trợ gấp? Liên hệ với chúng tôi qua chat 24/7!',
               style: TextStyle(

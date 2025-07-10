@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "52252509961",
+    "project_id": "appbanquanao4m",
+    "storage_bucket": "appbanquanao4m.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:52252509961:android:973eda9c944cd7fcc0f5d8",
+        "android_client_info": {
+          "package_name": "com.example.the4m_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDUGUm52OTMlkcuHjtZz8JdVz70oCf3hyA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

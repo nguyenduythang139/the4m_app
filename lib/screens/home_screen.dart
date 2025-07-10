@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:the4m_app/screens/product_detail_screen.dart';
+import 'package:the4m_app/widgets/drawer.dart';
 import 'package:the4m_app/widgets/footer.dart';
 import 'package:the4m_app/widgets/home_banner.dart';
 import 'package:the4m_app/widgets/title.dart';
@@ -8,9 +10,10 @@ import 'package:the4m_app/widgets/similar_product.dart';
 import 'package:video_player/video_player.dart';
 import 'package:the4m_app/widgets/bottom_navigation.dart';
 import 'package:the4m_app/widgets/header.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:the4m_app/models/product.dart';
 
 //models
-import 'package:the4m_app/models/product.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -20,7 +23,10 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  String selectedPage = "Trang chủ";
+
   final List<String> categories = ['All', 'Áo', 'Quần', 'Nón'];
+  
   int currentIndex = 0;
   int selectedIndex = 0;
 
@@ -54,10 +60,24 @@ class _HomeScreenState extends State<HomeScreen> {
     super.dispose();
   }
 
+  String formatCurrency(int amount) {
+    final formatter = NumberFormat.currency(locale: 'vi_VN', symbol: 'VNĐ');
+    return formatter.format(amount);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
+      drawer: CustomDrawer(
+        selectedPage: selectedPage,
+        onSelect: (String newPage) {
+          setState(() {
+            selectedPage = newPage;
+          });
+          Navigator.pop(context);
+        },
+      ),
       body: SafeArea(
         child: Column(
           children: [
@@ -126,73 +146,109 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     SizedBox(height: 5),
                     //danh muc san pham
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 10),
-                      child: GridView.builder(
-                        itemCount: products.length,
-                        shrinkWrap: true,
-                        physics: NeverScrollableScrollPhysics(),
-                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          crossAxisSpacing: 16,
-                          mainAxisSpacing: 20,
-                          childAspectRatio: 0.7,
-                        ),
-                        itemBuilder: (context, index) {
-                          final product = products[index];
-                          return GestureDetector(
-                            onTap: () {
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => ProductDetailScreen(),
+                    StreamBuilder<QuerySnapshot>(
+                      stream:
+                          FirebaseFirestore.instance
+                              .collection('SanPham')
+                              .snapshots(),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        }
+                        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                          return const Center(child: Text("Không có sản phẩm"));
+                        }
+
+                        final products =
+                            snapshot.data!.docs.map((doc) {
+                              return Product.fromMap(
+                                doc.data() as Map<String, dynamic>,
+                                doc.id,
+                              );
+                            }).toList();
+
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          child: GridView.builder(
+                            itemCount: products.length,
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            gridDelegate:
+                                const SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 2,
+                                  crossAxisSpacing: 16,
+                                  mainAxisSpacing: 20,
+                                  childAspectRatio: 0.7,
+                                ),
+                            itemBuilder: (context, index) {
+                              final product = products[index];
+                              return GestureDetector(
+                                onTap: () {
+                                  Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder:
+                                          (context) => ProductDetailScreen(
+                                            product: product,
+                                          ),
+                                    ),
+                                  );
+                                },
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.circular(8),
+                                      child: AspectRatio(
+                                        aspectRatio: 1,
+                                        child: Image.asset(
+                                          product.hinhAnh.isNotEmpty
+                                              ? product.hinhAnh[0]
+                                              : '',
+                                          fit: BoxFit.cover,
+                                          errorBuilder:
+                                              (_, __, ___) => const Icon(
+                                                Icons.broken_image,
+                                              ),
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 10),
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 3,
+                                      ),
+                                      child: Text(
+                                        product.tenSP,
+                                        textAlign: TextAlign.center,
+                                        style: const TextStyle(
+                                          color: Color(0xff333333),
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      "${formatCurrency(product.giaMoi)}",
+                                      style: const TextStyle(
+                                        color: Color(0xffDD8560),
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               );
                             },
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(8),
-                                  child: AspectRatio(
-                                    aspectRatio: 1,
-                                    child: Image.asset(
-                                      product.imagePath,
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(height: 10),
-                                Expanded(
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 3,
-                                    ),
-                                    child: Text(
-                                      product.name,
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        color: Color(0xff333333),
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(height: 4),
-                                Text(
-                                  product.price,
-                                  style: TextStyle(
-                                    color: Color(0xffDD8560),
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          );
-                        },
-                      ),
+                          ),
+                        );
+                      },
                     ),
                     SizedBox(height: 30),
                     Center(

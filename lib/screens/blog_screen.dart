@@ -1,14 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:the4m_app/widgets/drawer.dart';
 import '../widgets/header.dart';
 import '../widgets/footer.dart';
 import '../widgets/bottom_navigation.dart';
 import '../widgets/blogdetail.dart';
 
-class BlogScreen extends StatelessWidget {
+class BlogScreen extends StatefulWidget {
   const BlogScreen({super.key});
 
   @override
+  State<BlogScreen> createState() => _BlogScreenState();
+}
+
+class _BlogScreenState extends State<BlogScreen> {
+  @override
   Widget build(BuildContext context) {
+    String selectedPage = "Blog";
+
     final List<Map<String, dynamic>> blogs = [
       {
         'image': 'lib/assets/images/blog_1.png',
@@ -59,63 +67,78 @@ class BlogScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: const Header(), // Header đã kế thừa PreferredSizeWidget
+      drawer: CustomDrawer(
+        selectedPage: selectedPage,
+        onSelect: (String newPage) {
+          setState(() {
+            selectedPage = newPage;
+          });
+          Navigator.pop(context);
+        },
+      ),
+      appBar: const Header(),
       body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const SizedBox(height: 20),
-            const Text(
-              'BLOG',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontFamily: 'Tenor Sans',
-                fontSize: 18,
-                letterSpacing: 4,
-                color: Colors.black,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const Text(
+                'BLOG',
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: Colors.black,
+                  fontSize: 20,
+                  fontFamily: 'Tenor Sans',
+                  fontWeight: FontWeight.w400,
+                  height: 2.22,
+                  letterSpacing: 4,
+                ),
               ),
-            ),
-            const SizedBox(height: 20),
-            _buildCategoryTabs(),
-            const SizedBox(height: 20),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Column(
-                children:
-                    blogs.map((blog) => _buildBlogCard(context, blog)).toList(),
+              const SizedBox(height: 20),
+              _buildCategoryTabs(),
+              const SizedBox(height: 20),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Column(
+                  children:
+                      blogs
+                          .map((blog) => _buildBlogCard(context, blog))
+                          .toList(),
+                ),
               ),
-            ),
-            const SizedBox(height: 12),
-            Center(
-              child: OutlinedButton(
-                onPressed: () {},
-                style: OutlinedButton.styleFrom(
-                  side: const BorderSide(color: Color(0xFFDEDEDE)),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 33,
-                    vertical: 12,
+              const SizedBox(height: 12),
+              Center(
+                child: OutlinedButton(
+                  onPressed: () {},
+                  style: OutlinedButton.styleFrom(
+                    side: const BorderSide(color: Color(0xFFDEDEDE)),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 33,
+                      vertical: 12,
+                    ),
+                  ),
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'XEM THÊM',
+                        style: TextStyle(
+                          fontFamily: 'Tenor Sans',
+                          fontSize: 16,
+                          color: Colors.black,
+                        ),
+                      ),
+                      SizedBox(width: 8),
+                      Icon(Icons.expand_more, size: 24, color: Colors.black),
+                    ],
                   ),
                 ),
-                child: const Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      'XEM THÊM',
-                      style: TextStyle(
-                        fontFamily: 'Tenor Sans',
-                        fontSize: 16,
-                        color: Colors.black,
-                      ),
-                    ),
-                    SizedBox(width: 8),
-                    Icon(Icons.expand_more, size: 24, color: Colors.black),
-                  ],
-                ),
               ),
-            ),
-            const SizedBox(height: 20),
-            const Footer(),
-          ],
+              const SizedBox(height: 20),
+              const Footer(),
+            ],
+          ),
         ),
       ),
       bottomNavigationBar: BottomNavBar(
@@ -130,7 +153,7 @@ class BlogScreen extends StatelessWidget {
 
   Widget _buildCategoryTabs() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 32),
+      padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: const [

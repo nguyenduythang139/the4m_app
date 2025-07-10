@@ -160,7 +160,9 @@ class CartItem extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      "350.000 VNĐ",
+                      formatCurrency(
+                        cart.productPrice * cart.productQuantity,
+                      ).toString(),
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,

@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:the4m_app/screens/favorite_screen.dart';
 import 'package:the4m_app/screens/home_screen.dart';
 import 'package:the4m_app/screens/account_screen.dart';
+import 'package:the4m_app/screens/myinfo_screen.dart';
+import 'package:the4m_app/screens/product_screen.dart';
+import 'package:the4m_app/utils/smoothPushReplacement.dart';
 
 class BottomNavBar extends StatelessWidget {
   final int currentIndex;
@@ -15,35 +19,19 @@ class BottomNavBar extends StatelessWidget {
   void _navigateToScreen(BuildContext context, int index) {
     switch (index) {
       case 0:
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (context) => const HomeScreen()),
-          (route) => false,
-        );
+        smoothPushReplacementLikePush(context, HomeScreen());
       //case 1:
       // Navigator.pushReplacement(
       //   context,
       //   MaterialPageRoute(builder: (context) => const SearchScreen()),
       // );
       // break;
-      //case 2:
-      //  Navigator.pushAndRemoveUntil(
-      //       context,
-      //       MaterialPageRoute(builder: (context) => const HomeScreen()),
-      //       (route) => false,
-      //     );
-      //case 3:
-      //  Navigator.pushAndRemoveUntil(
-      //         context,
-      //         MaterialPageRoute(builder: (context) => const HomeScreen()),
-      //         (route) => false,
-      //       );
+      case 2:
+        smoothPushReplacementLikePush(context, ProductScreen());
+      case 3:
+        smoothPushReplacementLikePush(context, FavoriteScreen());
       case 4:
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (context) => const Account_Screen()),
-          (route) => false,
-        );
+        smoothPushReplacementLikePush(context, Account_Screen());
       default:
         break;
     }

@@ -23,14 +23,39 @@ class VoucherItem extends StatelessWidget {
                 ),
                 Expanded(
                   child: Padding(
-                    padding: const EdgeInsets.only(left: 15, top: 10),
+                    padding: const EdgeInsets.only(left: 15),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text("MÃ GIẢM GIÁ CHÀO MỪNG - 06/2025"),
-                        Text("Ngày bắt đầu:  01/06/2025 12:00 PM ICT"),
-                        Text("Ngày kết thúc: 30/06/2025 12:00 PM ICT"),
-                        Text("Giá trị voucher: 100.000 VNĐ"),
+                        Text(
+                          "MÃ GIẢM GIÁ CHÀO MỪNG - 06/2025",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            fontFamily: "NotoSerif_2",
+                          ),
+                        ),
+                        Text(
+                          "Ngày bắt đầu:  01/06/2025 12:00 PM ICT",
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontFamily: "NotoSerif_2",
+                          ),
+                        ),
+                        Text(
+                          "Ngày kết thúc: 30/06/2025 12:00 PM ICT",
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontFamily: "NotoSerif_2",
+                          ),
+                        ),
+                        Text(
+                          "Giá trị voucher: 100.000 VNĐ",
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontFamily: "NotoSerif_2",
+                          ),
+                        ),
                       ],
                     ),
                   ),

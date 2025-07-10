@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:the4m_app/screens/blog_screen.dart';
-import 'package:the4m_app/screens/home_screen.dart';
-import 'package:the4m_app/screens/login_screen.dart';
-import 'package:the4m_app/screens/myinfo_screen.dart';
-import 'package:the4m_app/screens/waiting_screen.dart';
 import 'package:flutter/services.dart';
-import 'package:the4m_app/screens/account_screen.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:the4m_app/screens/waiting_screen.dart';
+import 'package:the4m_app/screens/home_screen.dart';
+import 'package:the4m_app/scripts/sample_product.dart';
+import 'package:the4m_app/scripts/sample_voucher.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  await Firebase.initializeApp();
+
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.white,

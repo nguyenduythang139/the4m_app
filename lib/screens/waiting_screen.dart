@@ -126,9 +126,9 @@ class WaitingScreen extends StatelessWidget {
             child: ElevatedButton(
               onPressed: () {
                 // Khi nhấn sẽ chuyển sang màn hình Login
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const LoginScreen()),
+                Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(builder: (_) => LoginScreen()),
+                  (route) => false,
                 );
               },
               style: ElevatedButton.styleFrom(
@@ -163,9 +163,9 @@ class WaitingScreen extends StatelessWidget {
             child: OutlinedButton(
               onPressed: () {
                 // Khi nhấn sẽ chuyển sang màn hình Register
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => RegisterScreen()),
+                Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(builder: (_) => RegisterScreen()),
+                  (route) => false,
                 );
               },
               style: OutlinedButton.styleFrom(

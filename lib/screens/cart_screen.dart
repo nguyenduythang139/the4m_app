@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:the4m_app/screens/home_screen.dart';
+import 'package:the4m_app/screens/payment_screen.dart';
 import 'package:the4m_app/screens/voucher_screen.dart';
+import 'package:the4m_app/utils/smoothPushReplacement.dart';
 import 'package:the4m_app/widgets/cart_item.dart';
 import 'package:the4m_app/widgets/devider.dart';
 import 'package:the4m_app/widgets/header.dart';
@@ -67,16 +70,17 @@ class _CartScreenState extends State<CartScreen> {
                   ),
                   Align(
                     alignment: Alignment.centerRight,
-                    child: IconButton(
-                      onPressed: () {
-                        Navigator.pop(context);
+                    child: GestureDetector(
+                      onTap: () {
+                        smoothPushReplacementLikePush(context, HomeScreen());
                       },
-                      icon: Icon(Icons.close_outlined),
+                      child: Icon(Icons.close_outlined),
                     ),
                   ),
                 ],
               ),
             ),
+            // Danh sach san pham
             Expanded(
               child: ListView.builder(
                 itemCount: sampleCartList.length,
@@ -85,6 +89,7 @@ class _CartScreenState extends State<CartScreen> {
                 },
               ),
             ),
+            // Tong tien
             Padding(
               padding: EdgeInsets.all(12),
               child: Container(
@@ -111,7 +116,7 @@ class _CartScreenState extends State<CartScreen> {
                     ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [Text("Phiếu giảm giá"), Text("0 VNĐ")],
+                      children: [Text("Phiếu giảm giá"), Text("- 0 VNĐ")],
                     ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -144,6 +149,7 @@ class _CartScreenState extends State<CartScreen> {
                 ),
               ),
             ),
+            // Nut phieu giam gia
             GestureDetector(
               onTap: () {
                 Navigator.push(
@@ -184,24 +190,32 @@ class _CartScreenState extends State<CartScreen> {
                 ),
               ),
             ),
-            // Nut tiep tuc mua
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.black,
-                  padding: EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(),
-                ),
-                onPressed: () {},
-                icon: Icon(Icons.shopping_cart, color: Colors.white),
-                label: Text(
-                  "THANH TOÁN",
-                  style: TextStyle(color: Colors.white),
-                ),
-              ),
-            ),
           ],
+        ),
+      ),
+      bottomNavigationBar: SizedBox(
+        width: double.infinity,
+        child: ElevatedButton.icon(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.black,
+            padding: EdgeInsets.symmetric(vertical: 16),
+            shape: RoundedRectangleBorder(),
+          ),
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => PaymentScreen()),
+            );
+          },
+          icon: Icon(Icons.shopping_cart, color: Colors.white),
+          label: Text(
+            "THANH TOÁN",
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 16,
+              fontFamily: "TenorSans",
+            ),
+          ),
         ),
       ),
     );

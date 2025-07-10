@@ -12,11 +12,18 @@ dependencies:
   video_player: ^2.7.0
   intl: ^0.18.0
   image_picker: ^1.0.4
+  cloud_firestore: ^4.15.4
+  firebase_core: ^2.30.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^5.0.0
+  flutter_launcher_icons: ^0.13.1
+
+flutter_launcher_icons:
+  android: true
+  image_path: "lib/assets/images/Logo.png"
 
 flutter:
   uses-material-design: true
@@ -30,6 +37,12 @@ flutter:
     - family: TenorSans
       fonts:
         - asset: lib/assets/fonts/TenorSans-Regular.ttf
+    - family: NotoSerif
+      fonts:
+        - asset: lib/assets/fonts/NotoSerif-Italic-VariableFont_wdth,wght.ttf
+    - family: NotoSerif_2
+      fonts:
+        - asset: lib/assets/fonts/NotoSerif-VariableFont_wdth,wght.ttf
   assets:
     - lib/assets/icons/
     - lib/assets/images/

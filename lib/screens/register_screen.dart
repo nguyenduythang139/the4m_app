@@ -227,6 +227,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   icon: Icons.home,
                 ),
                 _buildDropdown(
+                  label: 'Phường/ Xã',
+                  hint: 'Chọn phường/ xã',
+                  value: _selectedWard,
+                  items: ['Phường A', 'Phường B'],
+                  onChanged: (value) => setState(() => _selectedWard = value),
+                  icon: Icons.location_on,
+                ),
+                _buildDropdown(
                   label: 'Tỉnh/ Thành Phố',
                   hint: 'Chọn tỉnh/ thành phố',
                   value: _selectedProvince,
@@ -235,24 +243,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       (value) => setState(() => _selectedProvince = value),
                   icon: Icons.location_city,
                 ),
-                _buildDropdown(
-                  label: 'Quận/ Huyện',
-                  hint: 'Chọn quận/ huyện',
-                  value: _selectedDistrict,
-                  items: ['Quận 1', 'Quận 3', 'Quận 7'],
-                  onChanged:
-                      (value) => setState(() => _selectedDistrict = value),
-                  icon: Icons.map,
-                ),
-                _buildDropdown(
-                  label: 'Phường/ Xã',
-                  hint: 'Chọn phường/ xã',
-                  value: _selectedWard,
-                  items: ['Phường A', 'Phường B'],
-                  onChanged: (value) => setState(() => _selectedWard = value),
-                  icon: Icons.location_on,
-                ),
-
                 // Mật khẩu
                 _buildTextField(
                   controller: _passwordController,
@@ -319,7 +309,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ElevatedButton(
                   onPressed: _submitForm,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFFDD8560),
+                    backgroundColor: Colors.orange,
                     minimumSize: Size(double.infinity, 55),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),

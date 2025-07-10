@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import '../models/product_model.dart';
 import 'package:intl/intl.dart';
+import 'package:the4m_app/models/product.dart';
 
 class ProductItem extends StatelessWidget {
-  final Products product;
+  final Product product;
 
   const ProductItem({super.key, required this.product});
 
@@ -15,12 +15,21 @@ class ProductItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Stack(
           children: [
             AspectRatio(
               aspectRatio: 1,
-              child: Image.asset(product.imageUrl, fit: BoxFit.cover),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Image.asset(
+                  product.hinhAnh.isNotEmpty ? product.hinhAnh[0] : '',
+                  fit: BoxFit.cover,
+                  errorBuilder:
+                      (_, __, ___) => const Icon(Icons.broken_image, size: 48),
+                ),
+              ),
             ),
             Positioned(
               bottom: 8,
@@ -30,12 +39,21 @@ class ProductItem extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 6),
-        Text(product.name, style: const TextStyle(fontSize: 14)),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4.0),
+          child: Text(
+            product.tenSP,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 14, color: Color(0xff333333)),
+          ),
+        ),
         const SizedBox(height: 4),
         Text(
-          formatCurrency(product.price),
+          formatCurrency(product.giaMoi),
           style: const TextStyle(
-            color: Colors.deepOrange,
+            color: Color(0xffDD8560),
             fontWeight: FontWeight.bold,
             fontSize: 14,
           ),

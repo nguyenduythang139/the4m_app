@@ -1,40 +1,58 @@
 class Product {
-  final String name;
-  final String imagePath;
-  final String price;
+  String maSP;
+  String tenSP;
+  int giaCu;
+  int giaMoi;
+  String moTa;
+  List<String> hinhAnh;
+  List<String> mauSac;
+  List<String> kichThuoc;
+  String loaiSP;
+  String thuongHieu;
+  String chatLieu;
+  String baoQuan;
+  String thuocTay;
+  String giatKho;
+  String sayKho;
+  String nhietDoUi;
 
-  Product({required this.name, required this.imagePath, required this.price});
+  Product({
+    required this.maSP,
+    required this.tenSP,
+    required this.giaCu,
+    required this.giaMoi,
+    required this.moTa,
+    required this.hinhAnh,
+    required this.mauSac,
+    required this.kichThuoc,
+    required this.loaiSP,
+    required this.thuongHieu,
+    required this.chatLieu,
+    required this.baoQuan,
+    required this.thuocTay,
+    required this.giatKho,
+    required this.sayKho,
+    required this.nhietDoUi,
+  });
+
+  factory Product.fromMap(Map<String, dynamic> map, String id) {
+    return Product(
+      maSP: id,
+      tenSP: map['tenSP'],
+      giaCu: map['giaCu'],
+      giaMoi: map['giaMoi'],
+      moTa: map['moTaNgan'],
+      hinhAnh: List<String>.from(map['hinhAnh']),
+      mauSac: List<String>.from(map['mauSac']),
+      kichThuoc: List<String>.from(map['kichThuoc']),
+      loaiSP: map['loaiSP'],
+      thuongHieu: map['thuongHieu'],
+      chatLieu: map['chatLieu'],
+      baoQuan: map['baoQuan'],
+      thuocTay: map['thuocTay'],
+      giatKho: map['giatKho'],
+      sayKho: map['sayKho'],
+      nhietDoUi: map['nhietDoUi'],
+    );
+  }
 }
-
-List<Product> products = [
-  Product(
-    name: 'Áo thun cotton jersey regular fit',
-    imagePath: 'lib/assets/images/product_1.png',
-    price: '300.000 vnđ',
-  ),
-  Product(
-    name: 'Áo polo cotton mercerized',
-    imagePath: 'lib/assets/images/product_2.png',
-    price: '270.000 vnđ',
-  ),
-  Product(
-    name: 'Áo polo Paddy vải cotton jacquard',
-    imagePath: 'lib/assets/images/product_4.png',
-    price: '250.000 vnđ',
-  ),
-  Product(
-    name: 'Áo thun cotton jersey regular fit',
-    imagePath: 'lib/assets/images/product_5.png',
-    price: '300.000 vnđ',
-  ),
-  Product(
-    name: 'Áo polo cotton mercerized',
-    imagePath: 'lib/assets/images/product_6.png',
-    price: '270.000 vnđ',
-  ),
-  Product(
-    name: 'Áo polo Paddy vải cotton jacquard',
-    imagePath: 'lib/assets/images/product_7.png',
-    price: '250.000 vnđ',
-  ),
-];

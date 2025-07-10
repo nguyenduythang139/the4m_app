@@ -5,6 +5,7 @@ import 'package:the4m_app/screens/home_screen.dart';
 import 'package:the4m_app/screens/login_screen.dart';
 import 'package:the4m_app/screens/myinfo_screen.dart';
 import 'package:the4m_app/widgets/bottom_navigation.dart';
+import 'package:the4m_app/widgets/drawer.dart';
 
 class Account_Screen extends StatefulWidget {
   const Account_Screen({Key? key}) : super(key: key);
@@ -16,6 +17,7 @@ class Account_Screen extends StatefulWidget {
 class _Account_ScreenState extends State<Account_Screen> {
   File? _avatarImage;
   File? _backgroundImage;
+  String selectedPage = "Tài khoản";
 
   Future<void> _pickImage() async {
     final picker = ImagePicker();
@@ -41,6 +43,15 @@ class _Account_ScreenState extends State<Account_Screen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
+      drawer: CustomDrawer(
+        selectedPage: selectedPage,
+        onSelect: (String newPage) {
+          setState(() {
+            selectedPage = newPage;
+          });
+          Navigator.pop(context);
+        },
+      ),
       body: Stack(
         children: [
           // Cover image
@@ -57,7 +68,7 @@ class _Account_ScreenState extends State<Account_Screen> {
                         fit: BoxFit.cover,
                       )
                       : Image.asset(
-                        'lib/assets/images/bg_account.png',
+                        'lib/assets/images/background_1.png',
                         width: MediaQuery.of(context).size.width,
                         height: 235,
                         fit: BoxFit.cover,
@@ -107,7 +118,7 @@ class _Account_ScreenState extends State<Account_Screen> {
 
           // User info
           Positioned(
-            top: 300,
+            top: 320,
             left: 20,
             right: 20,
             child: Container(
@@ -119,7 +130,7 @@ class _Account_ScreenState extends State<Account_Screen> {
                 boxShadow: const [
                   BoxShadow(
                     blurRadius: 4,
-                    offset: Offset(0, 4),
+                    offset: Offset(0, 2),
                     color: Colors.black26,
                   ),
                 ],
@@ -133,8 +144,8 @@ class _Account_ScreenState extends State<Account_Screen> {
                         Text(
                           'Phước Nguyễn',
                           style: TextStyle(
-                            fontSize: 20,
-                            fontFamily: 'Noto Serif',
+                            fontSize: 18,
+                            fontFamily: 'NotoSerif_2',
                           ),
                         ),
                         SizedBox(height: 5),
@@ -153,10 +164,9 @@ class _Account_ScreenState extends State<Account_Screen> {
               ),
             ),
           ),
-
           // Options
           Positioned(
-            top: 415,
+            top: 435,
             left: 20,
             right: 20,
             child: Container(
@@ -169,7 +179,7 @@ class _Account_ScreenState extends State<Account_Screen> {
                   BoxShadow(
                     color: Color(0xFFC1C1C1),
                     blurRadius: 4,
-                    offset: Offset(0, 4),
+                    offset: Offset(0, 2),
                   ),
                 ],
               ),
@@ -234,14 +244,13 @@ class _Account_ScreenState extends State<Account_Screen> {
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
         child: Row(
           children: [
-            Icon(icon, size: 30, color: Colors.black),
+            Icon(icon, size: 25, color: Colors.black),
             const SizedBox(width: 16),
             Expanded(
               child: Text(
                 title,
                 style: const TextStyle(
-                  fontSize: 18,
-                  fontFamily: 'Noto Serif',
+                  fontSize: 17,
                   fontWeight: FontWeight.w300,
                 ),
               ),
