@@ -5,6 +5,7 @@ import 'package:the4m_app/screens/account_screen.dart';
 import 'package:the4m_app/screens/myinfo_screen.dart';
 import 'package:the4m_app/screens/product_screen.dart';
 import 'package:the4m_app/utils/smoothPushReplacement.dart';
+import 'package:the4m_app/screens/search_screen.dart';
 
 class BottomNavBar extends StatelessWidget {
   final int currentIndex;

@@ -1,4 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:the4m_app/screens/blog_screen.dart';
+import 'package:the4m_app/screens/home_screen.dart';
+import 'package:the4m_app/screens/login_screen.dart';
+import 'package:the4m_app/screens/myinfo_screen.dart';
+import 'package:the4m_app/screens/search_screen.dart';
+import 'package:the4m_app/screens/waiting_screen.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:the4m_app/screens/waiting_screen.dart';
@@ -25,8 +31,8 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: Scaffold(body: Center(child: WaitingScreen())),
+    return MaterialApp(
+      home: Scaffold(body: Center(child: SearchScreen())),
       debugShowCheckedModeBanner: false,
     );
   }
