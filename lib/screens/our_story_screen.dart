@@ -79,7 +79,7 @@ class _OurStoryScreenState extends State<OurStoryScreen> {
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
               child: Image.network(
-                'https://forgecraftmensjewelry.com/cdn/shop/articles/minimalist-mens-fashion-beige-shirt-and-trousers.jpg?v=1737391858&width=1100',
+                'https://i.pinimg.com/736x/02/6a/41/026a419a1157ba44e0747e07a7124c7a.jpg',
                 height: 200,
                 width: double.infinity,
                 fit: BoxFit.cover,
