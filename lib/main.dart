@@ -1,16 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:the4m_app/screens/blog_screen.dart';
-import 'package:the4m_app/screens/home_screen.dart';
-import 'package:the4m_app/screens/login_screen.dart';
-import 'package:the4m_app/screens/myinfo_screen.dart';
-import 'package:the4m_app/screens/search_screen.dart';
 import 'package:the4m_app/screens/waiting_screen.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:the4m_app/screens/waiting_screen.dart';
-import 'package:the4m_app/screens/home_screen.dart';
-import 'package:the4m_app/scripts/sample_product.dart';
-import 'package:the4m_app/scripts/sample_voucher.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -32,7 +23,7 @@ class MainApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: Scaffold(body: Center(child: SearchScreen())),
+      home: Scaffold(body: Center(child: WaitingScreen())),
       debugShowCheckedModeBanner: false,
     );
   }

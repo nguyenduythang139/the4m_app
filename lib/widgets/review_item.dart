@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:the4m_app/models/review_model.dart';
-import 'package:the4m_app/utils/app_colors.dart';
 
 class ReviewItem extends StatelessWidget {
   final Review review;

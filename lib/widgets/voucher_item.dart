@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:the4m_app/widgets/devider.dart';
 
 class VoucherItem extends StatelessWidget {
   const VoucherItem({super.key});

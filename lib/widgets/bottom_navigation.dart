@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:the4m_app/screens/favorite_screen.dart';
 import 'package:the4m_app/screens/home_screen.dart';
 import 'package:the4m_app/screens/account_screen.dart';
-import 'package:the4m_app/screens/myinfo_screen.dart';
 import 'package:the4m_app/screens/product_screen.dart';
 import 'package:the4m_app/utils/smoothPushReplacement.dart';
 import 'package:the4m_app/screens/search_screen.dart';
@@ -21,12 +20,8 @@ class BottomNavBar extends StatelessWidget {
     switch (index) {
       case 0:
         smoothPushReplacementLikePush(context, HomeScreen());
-      //case 1:
-      // Navigator.pushReplacement(
-      //   context,
-      //   MaterialPageRoute(builder: (context) => const SearchScreen()),
-      // );
-      // break;
+      case 1:
+        smoothPushReplacementLikePush(context, SearchScreen());
       case 2:
         smoothPushReplacementLikePush(context, ProductScreen());
       case 3:

@@ -4,7 +4,6 @@ import 'package:the4m_app/screens/blog_screen.dart';
 import 'package:the4m_app/screens/contact_screen.dart';
 import 'package:the4m_app/screens/favorite_screen.dart';
 import 'package:the4m_app/screens/home_screen.dart';
-import 'package:the4m_app/screens/myinfo_screen.dart';
 import 'package:the4m_app/screens/our_story_screen.dart';
 import 'package:the4m_app/screens/product_screen.dart';
 
