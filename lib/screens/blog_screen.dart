@@ -17,6 +17,7 @@ class BlogScreen extends StatefulWidget {
 class _BlogScreenState extends State<BlogScreen> {
   String selectedPage = "Blogs";
   String? selectedType;
+  int selectedIndex = 0;
   late Future<List<BlogModel>> futureBlogs;
 
   final List<Map<String, String>> categories = [
@@ -120,7 +121,9 @@ class _BlogScreenState extends State<BlogScreen> {
       bottomNavigationBar: BottomNavBar(
         currentIndex: 0,
         onTap: (index) {
-          print("Chọn tab $index");
+          setState(() {
+            selectedIndex = index;
+          });
         },
       ),
     );
