@@ -1,4 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:the4m_app/models/blog_model.dart';
 import 'package:the4m_app/widgets/drawer.dart';
 import '../widgets/header.dart';
 import '../widgets/footer.dart';
@@ -13,139 +15,112 @@ class BlogScreen extends StatefulWidget {
 }
 
 class _BlogScreenState extends State<BlogScreen> {
+  String selectedPage = "Blogs";
+  String? selectedType;
+  late Future<List<BlogModel>> futureBlogs;
+
+  final List<Map<String, String>> categories = [
+    {'key': 'thoitrang', 'label': 'Thời Trang'},
+    {'key': 'giamgia', 'label': 'Giảm Giá'},
+    {'key': 'chinhsach', 'label': 'Chính Sách'},
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    futureBlogs = fetchBlogs();
+  }
+
+  Future<List<BlogModel>> fetchBlogs() async {
+    Query query = FirebaseFirestore.instance.collection('Blogs');
+
+    if (selectedType != null) {
+      query = query.where('blogType', isEqualTo: selectedType);
+    }
+
+    final snapshot = await query.get();
+    return snapshot.docs.map((doc) => BlogModel.fromDoc(doc)).toList();
+  }
+
+  void _onCategorySelected(String? type) {
+    setState(() {
+      selectedType = (selectedType == type) ? null : type;
+      futureBlogs = fetchBlogs();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    String selectedPage = "Blog";
-
-    final List<Map<String, dynamic>> blogs = [
-      {
-        'image': 'lib/assets/images/blog_1.png',
-        'title': 'PHONG CÁCH 2025: XU HƯỚNG LỊCH LÃM',
-        'midImageUrl':
-            'https://i.pinimg.com/736x/52/86/73/52867315bfd3e36e7f7f59b1601091a8.jpg',
-        'hashtags': ['#Fashion', '#Tips'],
-        'date': '4 days ago',
-        'content1':
-            'Năm nay, mình tập trung vào những item vừa thanh lịch vừa dễ phối – kết hợp giữa đồ cao cấp và bình dân để tạo nên phong cách riêng. Những mẫu áo blazer, quần suông hay sơ mi tối giản chính là lựa chọn hàng đầu giúp mình luôn chỉn chu mà vẫn thời thượng. Blazer dáng suông, sơ mi tối giản, quần âu cạp cao hay những chiếc áo len mỏng gam trung tính đang là lựa chọn yêu thích của mình trong năm nay.',
-        'content2':
-            'Bên cạnh đó, mình cũng ưu tiên chất liệu thoải mái, đứng form để dễ dàng di chuyển mà vẫn giữ được vẻ tinh tế. Những gam màu trung tính như be, ghi, trắng hay đen giúp mình dễ dàng phối đồ theo nhiều phong cách khác nhau – từ công sở đến dạo phố. Mình luôn tin rằng, sự tối giản nhưng có điểm nhấn chính là chìa khóa để tạo nên vẻ ngoài thanh lịch và cuốn hút.',
-      },
-      {
-        'image': 'lib/assets/images/blog_2.png',
-        'title': 'PHONG CÁCH 2025: XU HƯỚNG LỊCH LÃM',
-        'midImageUrl': 'https://example.com/mid-image.jpg',
-        'hashtags': ['#Sale', '#Summer'],
-        'date': '7 days ago',
-        'content1':
-            'Năm nay, mình tập trung vào những item vừa thanh lịch vừa dễ phối – kết hợp giữa đồ cao cấp và bình dân để tạo nên phong cách riêng. Những mẫu áo blazer, quần suông hay sơ mi tối giản chính là lựa chọn hàng đầu giúp mình luôn chỉn chu mà vẫn thời thượng. Blazer dáng suông, sơ mi tối giản, quần âu cạp cao hay những chiếc áo len mỏng gam trung tính đang là lựa chọn yêu thích của mình trong năm nay.',
-        'content2':
-            'Bên cạnh đó, mình cũng ưu tiên chất liệu thoải mái, đứng form để dễ dàng di chuyển mà vẫn giữ được vẻ tinh tế. Những gam màu trung tính như be, ghi, trắng hay đen giúp mình dễ dàng phối đồ theo nhiều phong cách khác nhau – từ công sở đến dạo phố. Mình luôn tin rằng, sự tối giản nhưng có điểm nhấn chính là chìa khóa để tạo nên vẻ ngoài thanh lịch và cuốn hút.',
-      },
-      {
-        'image': 'lib/assets/images/blog_3.png',
-        'title': 'PHONG CÁCH 2025: XU HƯỚNG LỊCH LÃM',
-        'midImageUrl': 'https://example.com/mid-image.jpg',
-        'hashtags': ['#Style', '#Weekend'],
-        'date': '2 weeks ago',
-        'content1':
-            'Năm nay, mình tập trung vào những item vừa thanh lịch vừa dễ phối – kết hợp giữa đồ cao cấp và bình dân để tạo nên phong cách riêng. Những mẫu áo blazer, quần suông hay sơ mi tối giản chính là lựa chọn hàng đầu giúp mình luôn chỉn chu mà vẫn thời thượng. Blazer dáng suông, sơ mi tối giản, quần âu cạp cao hay những chiếc áo len mỏng gam trung tính đang là lựa chọn yêu thích của mình trong năm nay.',
-        'content2':
-            'Bên cạnh đó, mình cũng ưu tiên chất liệu thoải mái, đứng form để dễ dàng di chuyển mà vẫn giữ được vẻ tinh tế. Những gam màu trung tính như be, ghi, trắng hay đen giúp mình dễ dàng phối đồ theo nhiều phong cách khác nhau – từ công sở đến dạo phố. Mình luôn tin rằng, sự tối giản nhưng có điểm nhấn chính là chìa khóa để tạo nên vẻ ngoài thanh lịch và cuốn hút.',
-      },
-      {
-        'image': 'lib/assets/images/blog_4.png',
-        'title': 'PHONG CÁCH 2025: XU HƯỚNG LỊCH LÃM',
-        'midImageUrl': 'https://example.com/mid-image.jpg',
-        'hashtags': ['#Policy', '#Support'],
-        'date': '3 weeks ago',
-        'content1':
-            'Năm nay, mình tập trung vào những item vừa thanh lịch vừa dễ phối – kết hợp giữa đồ cao cấp và bình dân để tạo nên phong cách riêng. Những mẫu áo blazer, quần suông hay sơ mi tối giản chính là lựa chọn hàng đầu giúp mình luôn chỉn chu mà vẫn thời thượng. Blazer dáng suông, sơ mi tối giản, quần âu cạp cao hay những chiếc áo len mỏng gam trung tính đang là lựa chọn yêu thích của mình trong năm nay.',
-        'content2':
-            'Bên cạnh đó, mình cũng ưu tiên chất liệu thoải mái, đứng form để dễ dàng di chuyển mà vẫn giữ được vẻ tinh tế. Những gam màu trung tính như be, ghi, trắng hay đen giúp mình dễ dàng phối đồ theo nhiều phong cách khác nhau – từ công sở đến dạo phố. Mình luôn tin rằng, sự tối giản nhưng có điểm nhấn chính là chìa khóa để tạo nên vẻ ngoài thanh lịch và cuốn hút.',
-      },
-    ];
-
     return Scaffold(
       backgroundColor: Colors.white,
       drawer: CustomDrawer(
         selectedPage: selectedPage,
-        onSelect: (String newPage) {
-          setState(() {
-            selectedPage = newPage;
-          });
+        onSelect: (newPage) {
+          setState(() => selectedPage = newPage);
           Navigator.pop(context);
         },
       ),
       appBar: const Header(),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const Text(
-                'BLOG',
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  color: Colors.black,
-                  fontSize: 20,
-                  fontFamily: 'Tenor Sans',
-                  fontWeight: FontWeight.w400,
-                  height: 2.22,
-                  letterSpacing: 4,
-                ),
-              ),
-              const SizedBox(height: 20),
-              _buildCategoryTabs(),
-              const SizedBox(height: 20),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Column(
-                  children:
-                      blogs
-                          .map((blog) => _buildBlogCard(context, blog))
-                          .toList(),
-                ),
-              ),
-              const SizedBox(height: 12),
-              Center(
-                child: OutlinedButton(
-                  onPressed: () {},
-                  style: OutlinedButton.styleFrom(
-                    side: const BorderSide(color: Color(0xFFDEDEDE)),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 33,
-                      vertical: 12,
-                    ),
-                  ),
-                  child: const Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        'XEM THÊM',
-                        style: TextStyle(
-                          fontFamily: 'Tenor Sans',
-                          fontSize: 16,
-                          color: Colors.black,
-                        ),
-                      ),
-                      SizedBox(width: 8),
-                      Icon(Icons.expand_more, size: 24, color: Colors.black),
-                    ],
+      body: FutureBuilder<List<BlogModel>>(
+        future: futureBlogs,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (snapshot.hasError) {
+            return const Center(child: Text("Đã xảy ra lỗi khi tải blog"));
+          }
+
+          final blogs = snapshot.data ?? [];
+
+          return SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const Text(
+                  'BLOG',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 20,
+                    fontFamily: 'Tenor Sans',
+                    fontWeight: FontWeight.w400,
+                    height: 2.22,
+                    letterSpacing: 4,
                   ),
                 ),
-              ),
-              const SizedBox(height: 20),
-              const Footer(),
-            ],
-          ),
-        ),
+                const SizedBox(height: 20),
+                _buildCategoryTabs(),
+                const SizedBox(height: 20),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child:
+                      blogs.isEmpty
+                          ? const Center(child: Text("Không có blog nào"))
+                          : Column(
+                            children:
+                                blogs
+                                    .map(
+                                      (blog) => _buildBlogCard(context, blog),
+                                    )
+                                    .toList(),
+                          ),
+                ),
+                const SizedBox(height: 12),
+                _buildXemThemButton(),
+                const SizedBox(height: 20),
+                const Footer(),
+              ],
+            ),
+          );
+        },
       ),
       bottomNavigationBar: BottomNavBar(
         currentIndex: 0,
         onTap: (index) {
-          // Xử lý chuyển tab, bạn có thể thay bằng Navigator.push...
-          print("Đã chọn tab $index");
+          print("Chọn tab $index");
         },
       ),
     );
@@ -156,30 +131,63 @@ class _BlogScreenState extends State<BlogScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: const [
-          _CategoryChip(title: 'Thời Trang', isSelected: true),
-          _CategoryChip(title: 'Giảm Giá'),
-          _CategoryChip(title: 'Chính Sách'),
-        ],
+        children:
+            categories.map((category) {
+              final isSelected = selectedType == category['key'];
+              return GestureDetector(
+                onTap: () => _onCategorySelected(category['key']),
+                child: _CategoryChip(
+                  title: category['label']!,
+                  isSelected: isSelected,
+                ),
+              );
+            }).toList(),
       ),
     );
   }
 
-  Widget _buildBlogCard(BuildContext context, Map<String, dynamic> blog) {
+  Widget _buildXemThemButton() {
+    return Center(
+      child: OutlinedButton(
+        onPressed: () {},
+        style: OutlinedButton.styleFrom(
+          side: const BorderSide(color: Color(0xFFDEDEDE)),
+          padding: const EdgeInsets.symmetric(horizontal: 33, vertical: 12),
+        ),
+        child: const Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'XEM THÊM',
+              style: TextStyle(
+                fontFamily: 'Tenor Sans',
+                fontSize: 16,
+                color: Colors.black,
+              ),
+            ),
+            SizedBox(width: 8),
+            Icon(Icons.expand_more, size: 24, color: Colors.black),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBlogCard(BuildContext context, BlogModel blog) {
     return GestureDetector(
       onTap: () {
         Navigator.push(
           context,
           MaterialPageRoute(
             builder:
-                (context) => BlogDetail(
-                  imageUrl: blog['image'],
-                  title: blog['title'],
-                  hashtags: List<String>.from(blog['hashtags']),
-                  date: blog['date'],
-                  midImageUrl: blog['midImageUrl'],
-                  content1: blog['content1'],
-                  content2: blog['content2'],
+                (_) => BlogDetail(
+                  imageUrl: blog.image,
+                  title: blog.title,
+                  hashtags: blog.hashtags,
+                  date: blog.date,
+                  midImageUrl: blog.midImageUrl,
+                  content1: blog.content1,
+                  content2: blog.content2,
                 ),
           ),
         );
@@ -197,7 +205,10 @@ class _BlogScreenState extends State<BlogScreen> {
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(4),
                     image: DecorationImage(
-                      image: AssetImage(blog['image']),
+                      image:
+                          blog.image.startsWith("http")
+                              ? NetworkImage(blog.image)
+                              : AssetImage(blog.image) as ImageProvider,
                       fit: BoxFit.cover,
                     ),
                   ),
@@ -222,7 +233,7 @@ class _BlogScreenState extends State<BlogScreen> {
                   right: 14,
                   bottom: 20,
                   child: Text(
-                    blog['title'],
+                    blog.title,
                     softWrap: true,
                     overflow: TextOverflow.visible,
                     style: const TextStyle(
@@ -243,13 +254,13 @@ class _BlogScreenState extends State<BlogScreen> {
                     spacing: 8,
                     runSpacing: 8,
                     children:
-                        blog['hashtags']
-                            .map<Widget>((tag) => _HashtagChip(text: tag))
+                        blog.hashtags
+                            .map((tag) => _HashtagChip(text: tag))
                             .toList(),
                   ),
                 ),
                 Text(
-                  blog['date'],
+                  blog.date,
                   style: const TextStyle(
                     color: Color(0xFF888888),
                     fontFamily: 'Tenor Sans',
