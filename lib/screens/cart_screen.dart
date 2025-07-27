@@ -4,6 +4,7 @@ import 'package:the4m_app/screens/payment_screen.dart';
 import 'package:the4m_app/screens/voucher_screen.dart';
 import 'package:the4m_app/utils/smoothPushReplacement.dart';
 import 'package:the4m_app/widgets/cart_item.dart';
+import 'package:the4m_app/widgets/cart_notify.dart';
 import 'package:the4m_app/widgets/devider.dart';
 import 'package:the4m_app/widgets/header.dart';
 import 'package:the4m_app/models/cart_model.dart';
@@ -39,6 +40,12 @@ class _CartScreenState extends State<CartScreen> {
   String formatCurrency(int amount) {
     final formatter = NumberFormat.currency(locale: 'vi_VN', symbol: 'VNĐ');
     return formatter.format(amount);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    cartNotify.updateCount(calculateQuantity());
   }
 
   @override
@@ -221,11 +228,20 @@ class _CartScreenState extends State<CartScreen> {
     );
   }
 
-  /// ham tinh tong
+  // ham tinh tong
   int calculateTotal() {
     int total = 0;
     for (var item in sampleCartList) {
       total += item.productPrice * item.productQuantity;
+    }
+    return total;
+  }
+
+  // ham tinh so luong san pham
+  int calculateQuantity() {
+    int total = 0;
+    for (var item in sampleCartList) {
+      total += item.productQuantity;
     }
     return total;
   }

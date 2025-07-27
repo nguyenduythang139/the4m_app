@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:the4m_app/screens/forgotpassword_screen';
 import 'dart:async';
-
 import 'package:the4m_app/screens/home_screen.dart';
 import 'package:the4m_app/screens/register_screen.dart';
 import 'package:the4m_app/utils/smoothPushReplacement.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -23,12 +24,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
   // Biến điều khiển hiện/ẩn mật khẩu
   bool _obscurePassword = true;
-
-  // Hàm kiểm tra định dạng Gmail
-  bool _isValidGmail(String email) {
-    final regex = RegExp(r'^[a-zA-Z0-9._%+-]+@gmail\.com$');
-    return regex.hasMatch(email);
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -191,28 +186,53 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   // 🔎 Hàm xử lý khi bấm nút Đăng nhập
-  void _handleLogin() {
+  void _handleLogin() async {
     setState(() {
-      if (!_isValidGmail(_email.trim())) {
-        _errorMessage = 'Vui lòng nhập đúng định dạng email Gmail.';
-      } else if (_password.trim().isEmpty) {
-        _errorMessage = 'Vui lòng nhập mật khẩu.';
-      } else {
-        _errorMessage = ''; // ✅ Không có lỗi
-        // ✅ Chuyển sang HomeScreen
-        smoothPushReplacementLikePush(context, HomeScreen());
-        return;
-      }
+      _errorMessage = '';
     });
 
-    // ⏱️ Tự động ẩn lỗi sau 3 giây
-    Timer(const Duration(seconds: 2), () {
-      if (mounted) {
+    final email = _email.trim();
+    final matKhau = _password.trim();
+
+    if (matKhau.isEmpty || email.isEmpty) {
+      setState(() {
+        _errorMessage = "Vui lòng nhập đầy đủ các trường thông tin!";
+      });
+    } else {
+      try {
+        final userCredential = await FirebaseAuth.instance
+            .signInWithEmailAndPassword(email: email, password: matKhau);
+
+        if (context.mounted) {
+          smoothPushReplacementLikePush(context, HomeScreen());
+        }
+      } on FirebaseAuthException catch (e) {
+        String _message = "Đăng nhập thất bại!";
+        if (e.code == "user-not-found") {
+          _message = "Email không chính xác!";
+        } else if (e.code == "wrong-password") {
+          _message = "Mật khẩu không chính xác!";
+        } else if (e.code == "invalid-email") {
+          _message = "Email không hợp lệ!";
+        }
+
         setState(() {
-          _errorMessage = '';
+          _errorMessage = _message;
+        });
+
+        Timer(Duration(seconds: 2), () {
+          if (mounted) setState(() => _errorMessage = '');
+        });
+      } catch (e) {
+        setState(() {
+          _errorMessage = "Lỗi không xác định: $e";
+        });
+
+        Timer(Duration(seconds: 2), () {
+          if (mounted) setState(() => _errorMessage = '');
         });
       }
-    });
+    }
   }
 
   // 🏷️ Label Email / Mật khẩu
@@ -320,9 +340,7 @@ class _LoginScreenState extends State<LoginScreen> {
       width: double.infinity,
       height: 55,
       child: OutlinedButton(
-        onPressed: () {
-          // TODO: Xử lý đăng nhập Google
-        },
+        onPressed: _handleGoogleSignIn,
         style: OutlinedButton.styleFrom(
           side: const BorderSide(width: 1),
           shape: RoundedRectangleBorder(
@@ -346,5 +364,40 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> _handleGoogleSignIn() async {
+    try {
+      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+      if (googleUser == null) {
+        return;
+      }
+
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
+
+      final credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      final UserCredential = await FirebaseAuth.instance.signInWithCredential(
+        credential,
+      );
+
+      if (context.mounted) {
+        smoothPushReplacementLikePush(context, HomeScreen());
+      }
+    } catch (e) {
+      print("Lỗi đăng nhập Google: $e");
+      if (context.mounted) {
+        setState(() {
+          _errorMessage = "Đăng nhập Google thất bại. Vui lòng thử lại!";
+        });
+        Future.delayed(Duration(seconds: 2), () {
+          if (mounted) setState(() => _errorMessage = '');
+        });
+      }
+    }
   }
 }

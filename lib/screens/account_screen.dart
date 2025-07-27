@@ -5,8 +5,11 @@ import 'package:the4m_app/screens/home_screen.dart';
 import 'package:the4m_app/screens/login_screen.dart';
 import 'package:the4m_app/screens/myinfo_screen.dart';
 import 'package:the4m_app/screens/search_screen.dart';
+import 'package:the4m_app/utils/smoothPushReplacement.dart';
 import 'package:the4m_app/widgets/bottom_navigation.dart';
 import 'package:the4m_app/widgets/drawer.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class Account_Screen extends StatefulWidget {
   const Account_Screen({Key? key}) : super(key: key);
@@ -236,18 +239,31 @@ class _Account_ScreenState extends State<Account_Screen> {
 
   Widget _buildOptionItem(String title, IconData icon) {
     return InkWell(
-      onTap: () {
+      onTap: () async {
         if (title == 'Thông tin cá nhân') {
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => const MyInfoScreen()),
           );
         } else if (title == 'Đăng xuất') {
-          Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(builder: (context) => const LoginScreen()),
-            (route) => false,
-          );
+          try {
+            await FirebaseAuth.instance.signOut();
+
+            final GoogleSignIn googleSignIn = GoogleSignIn();
+            if (await googleSignIn.isSignedIn()) {
+              await googleSignIn.signOut();
+            }
+            if (context.mounted) {
+              smoothPushReplacementLikePush(context, LoginScreen());
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text("Đăng xuất thành công!")));
+            }
+          } catch (e) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text("Lỗi đăng xuất, vui lòng thử lại!")),
+            );
+          }
         }
       },
       child: Padding(

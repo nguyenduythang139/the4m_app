@@ -1,4 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:the4m_app/utils/smoothPushReplacement.dart';
 import 'login_screen.dart'; // Trang đăng nhập
 
 class RegisterScreen extends StatefulWidget {
@@ -21,7 +24,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
   // Biến lưu trạng thái dropdown
   String? _selectedGender;
   String? _selectedProvince;
-  String? _selectedDistrict;
   String? _selectedWard;
 
   // Biến điều khiển hiển thị/ẩn mật khẩu
@@ -128,11 +130,62 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   // Hàm xử lý khi nhấn nút đăng ký
-  void _submitForm() {
+  void _submitForm() async {
     if (_formKey.currentState!.validate()) {
-      // Nếu mọi thứ hợp lệ
-      print("Registering user...");
-      // TODO: Gửi dữ liệu lên server hoặc Firebase
+      try {
+        final credential = await FirebaseAuth.instance
+            .createUserWithEmailAndPassword(
+              email: _emailController.text.trim(),
+              password: _passwordController.text.trim(),
+            );
+
+        final uid = credential.user!.uid;
+
+        final maTK = uid;
+        final maKH = uid;
+
+        await FirebaseFirestore.instance.collection('TaiKhoan').doc(maTK).set({
+          'maTK': maTK,
+          'email': _emailController.text.trim(),
+          'matKhau': _passwordController.text.trim(),
+          'vaiTro': 'KhachHang',
+        });
+
+        await FirebaseFirestore.instance.collection('KhachHang').doc(maKH).set({
+          'maKH': maKH,
+          'hoTen': _fullNameController.text.trim(),
+          'ngaySinh': _dobController.text.trim(),
+          'gioiTinh': _selectedGender,
+          'soDienThoai': _phoneController.text.trim(),
+          'soNha': _addressController.text.trim(),
+          'phuong': _selectedWard,
+          'thanhPho': _selectedProvince,
+          'maTK': maTK,
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Đăng ký tài khoản thành công!")),
+        );
+
+        smoothPushReplacementLikePush(context, LoginScreen());
+      } on FirebaseAuthException catch (e) {
+        String _errorMessage = "Đã xảy ra lỗi";
+        if (e.code == "email-already-in-use") {
+          _errorMessage = "Email đã được sử dụng!";
+        } else if (e.code == "invalid-email") {
+          _errorMessage = "Email không hợp lệ!";
+        } else if (e.code == "weak-password") {
+          _errorMessage = "Mật khẩu quá yếu!";
+        }
+
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(_errorMessage)));
+      } catch (e) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text("Lỗi không xác định: $e")));
+      }
     }
   }
 

@@ -12,7 +12,12 @@
           "package_name": "com.example.the4m_app"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "52252509961-psqm6h38khp3qn7duma3j6qcu5pssfc3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyDUGUm52OTMlkcuHjtZz8JdVz70oCf3hyA"
@@ -20,7 +25,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "52252509961-psqm6h38khp3qn7duma3j6qcu5pssfc3.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

@@ -1,7 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:the4m_app/models/product.dart';
+import 'package:the4m_app/models/cart.dart';
 import 'package:the4m_app/screens/account_screen.dart';
 import 'package:the4m_app/screens/blog_screen.dart';
 import 'package:the4m_app/screens/contact_screen.dart';
@@ -18,6 +20,7 @@ import 'package:the4m_app/utils/app_colors.dart';
 import 'package:the4m_app/models/review_model.dart';
 import 'package:the4m_app/widgets/review_item.dart';
 import 'package:the4m_app/widgets/product_item.dart';
+import 'package:the4m_app/widgets/cart_notify.dart';
 
 class ProductDetailScreen extends StatefulWidget {
   final Product product;
@@ -107,6 +110,52 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       ),
     ];
   }
+
+  // Future<void> addToCart() async {
+  //   final currentUser = FirebaseAuth.instance.currentUser;
+
+  //   if (currentUser == null) {
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(content: Text("Vui lòng đăng nhập để tiếp tục mua hàng")),
+  //     );
+  //     return;
+  //   }
+
+  //   final cartItem = Cart(
+  //     maSP: widget.product.id,
+  //     tenSP: widget.product.tenSP,
+  //     hinhAnh: widget.product.hinhAnh,
+  //     gia: widget.product.giaMoi,
+  //     kichThuoc: widget.product.kichThuoc,
+  //     mauSac: widget.product.mauSac,
+  //     soLuong: 1,
+  //   );
+
+  //   final cartRef = FirebaseFirestore.instance
+  //       .collection('TaiKhoan')
+  //       .doc(currentUser.uid)
+  //       .collection("GioHang");
+
+  //   final existing =
+  //       await cartRef
+  //           .where('maSP', isEqualTo: cartItem.maSP)
+  //           .where('kichThuoc', isEqualTo: cartItem.kichThuoc)
+  //           .where('mauSac', isEqualTo: cartItem.mauSac)
+  //           .get();
+
+  //   if (existing.docs.isNotEmpty) {
+  //     final doc = existing.docs.first;
+  //     await cartRef.doc(doc.id).update({'soLuong': doc['soLuong'] + 1});
+  //     cartNotify.increment();
+  //   } else {
+  //     await cartRef.add(cartItem.toMap());
+  //     cartNotify.increment();
+  //   }
+
+  //   ScaffoldMessenger.of(
+  //     context,
+  //   ).showSnackBar(SnackBar(content: Text("Thêm sản phẩm thành công!")));
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -253,32 +302,35 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     ),
                     SizedBox(height: 30),
                     //Nut them san pham
-                    Container(
-                      color: Colors.black,
-                      padding: EdgeInsets.fromLTRB(10, 20, 15, 20),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Row(
-                            children: [
-                              Icon(Icons.add, color: Colors.white, size: 18),
-                              SizedBox(width: 10),
-                              Text(
-                                "THÊM VÀO GIỎ HÀNG",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 15,
-                                  fontFamily: "TenorSans",
+                    GestureDetector(
+                      onTap: () => {}, //addToCart(),
+                      child: Container(
+                        color: Colors.black,
+                        padding: EdgeInsets.fromLTRB(10, 20, 15, 20),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              children: [
+                                Icon(Icons.add, color: Colors.white, size: 18),
+                                SizedBox(width: 10),
+                                Text(
+                                  "THÊM VÀO GIỎ HÀNG",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 15,
+                                    fontFamily: "TenorSans",
+                                  ),
                                 ),
-                              ),
-                            ],
-                          ),
-                          Icon(
-                            Icons.favorite_border,
-                            color: Colors.white,
-                            size: 22,
-                          ),
-                        ],
+                              ],
+                            ),
+                            Icon(
+                              Icons.favorite_border,
+                              color: Colors.white,
+                              size: 22,
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                     SizedBox(height: 30),

@@ -97,7 +97,7 @@ class _MyInfoScreenState extends State<MyInfoScreen> {
                         fit: BoxFit.cover,
                       )
                       : Image.asset(
-                        'lib/assets/images/bg_account.png',
+                        'lib/assets/images/background_1.png',
                         width: MediaQuery.of(context).size.width,
                         height: 235,
                         fit: BoxFit.cover,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:the4m_app/screens/cart_screen.dart';
 import 'package:the4m_app/utils/smoothPushReplacement.dart';
+import 'package:the4m_app/widgets/cart_notify.dart';
 
 class Header extends StatefulWidget implements PreferredSizeWidget {
   const Header({super.key});
@@ -58,9 +59,40 @@ class _HeaderState extends State<Header> {
                   onPressed: () {
                     smoothPushReplacementLikePush(context, CartScreen());
                   },
-                  icon: const Icon(Icons.shopping_bag_outlined),
-                  iconSize: 30,
-                  color: Colors.black,
+                  icon: Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      Icon(
+                        Icons.shopping_bag_outlined,
+                        size: 30,
+                        color: Colors.black,
+                      ),
+                      Positioned(
+                        right: -6,
+                        top: -6,
+                        child: ValueListenableBuilder(
+                          valueListenable: cartNotify,
+                          builder: (context, value, child) {
+                            if (value == 0) return SizedBox();
+                            return Container(
+                              padding: EdgeInsets.all(4),
+                              decoration: BoxDecoration(
+                                color: Colors.orange,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Text(
+                                '$value',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
