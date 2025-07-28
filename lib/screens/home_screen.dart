@@ -26,7 +26,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   String selectedPage = "Trang chủ";
 
-  final List<String> categories = ['All', 'Áo', 'Quần', 'Nón'];
+  final List<String> categories = ['Tất cả', 'Áo', 'Quần', 'Nón'];
 
   int currentIndex = 0;
   int selectedIndex = 0;
@@ -151,6 +151,13 @@ class _HomeScreenState extends State<HomeScreen> {
                       stream:
                           FirebaseFirestore.instance
                               .collection('SanPham')
+                              .where(
+                                'ngayNhapSP',
+                                isGreaterThanOrEqualTo: Timestamp.fromDate(
+                                  DateTime.now().subtract(Duration(days: 7)),
+                                ),
+                              )
+                              .orderBy('ngayNhapSP', descending: true)
                               .snapshots(),
                       builder: (context, snapshot) {
                         if (snapshot.connectionState ==
@@ -160,10 +167,12 @@ class _HomeScreenState extends State<HomeScreen> {
                           );
                         }
                         if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                          return const Center(child: Text("Không có sản phẩm"));
+                          return const Center(
+                            child: Text("Không có sản phẩm gần đây"),
+                          );
                         }
 
-                        final products =
+                        List<Product> allProducts =
                             snapshot.data!.docs.map((doc) {
                               return Product.fromMap(
                                 doc.data() as Map<String, dynamic>,
@@ -171,10 +180,27 @@ class _HomeScreenState extends State<HomeScreen> {
                               );
                             }).toList();
 
+                        // Lọc theo danh mục
+                        String selectedCategory = categories[currentIndex];
+                        List<Product> filteredProducts =
+                            selectedCategory == 'Tất cả'
+                                ? allProducts
+                                : allProducts
+                                    .where(
+                                      (p) =>
+                                          p.loaiSPTQ.toLowerCase() ==
+                                          selectedCategory.toLowerCase(),
+                                    )
+                                    .toList();
+
+                        // Giới hạn hiển thị 10 sản phẩm
+                        final limitedProducts =
+                            filteredProducts.take(10).toList();
+
                         return Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 10),
                           child: GridView.builder(
-                            itemCount: products.length,
+                            itemCount: limitedProducts.length,
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
                             gridDelegate:
@@ -185,7 +211,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   childAspectRatio: 0.7,
                                 ),
                             itemBuilder: (context, index) {
-                              final product = products[index];
+                              final product = limitedProducts[index];
                               return GestureDetector(
                                 onTap: () {
                                   Navigator.pushReplacement(

@@ -15,6 +15,7 @@ class Product {
   String giatKho;
   String sayKho;
   String nhietDoUi;
+  final String loaiSPTQ;
 
   Product({
     required this.maSP,
@@ -33,6 +34,7 @@ class Product {
     required this.giatKho,
     required this.sayKho,
     required this.nhietDoUi,
+    required this.loaiSPTQ,
   });
 
   factory Product.fromMap(Map<String, dynamic> map, String id) {
@@ -53,6 +55,7 @@ class Product {
       giatKho: map['giatKho'],
       sayKho: map['sayKho'],
       nhietDoUi: map['nhietDoUi'],
+      loaiSPTQ: map['loaiSPTQ'] ?? '',
     );
   }
 }
