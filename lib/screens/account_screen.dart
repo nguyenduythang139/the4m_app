@@ -10,6 +10,7 @@ import 'package:the4m_app/widgets/bottom_navigation.dart';
 import 'package:the4m_app/widgets/drawer.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:the4m_app/screens/order_history_screen.dart';
 
 class Account_Screen extends StatefulWidget {
   const Account_Screen({Key? key}) : super(key: key);
@@ -244,6 +245,11 @@ class _Account_ScreenState extends State<Account_Screen> {
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => const MyInfoScreen()),
+          );
+        } else if (title == 'Lịch sử mua hàng') {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const OrderHistoryScreen()),
           );
         } else if (title == 'Đăng xuất') {
           try {
