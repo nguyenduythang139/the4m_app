@@ -47,7 +47,7 @@ class _HomeBannerState extends State<HomeBanner> {
                 Text(
                   'LUXURY',
                   style: TextStyle(
-                    color: Colors.black.withOpacity(0.6),
+                    color: Colors.black.withOpacity(0.8),
                     fontSize: 33,
                     fontWeight: FontWeight.bold,
                     fontFamily: 'Bodoni_Italic',
@@ -58,7 +58,7 @@ class _HomeBannerState extends State<HomeBanner> {
                   child: Text(
                     'FASHION',
                     style: TextStyle(
-                      color: Colors.black.withOpacity(0.6),
+                      color: Colors.black.withOpacity(0.8),
                       fontSize: 33,
                       fontWeight: FontWeight.bold,
                       fontFamily: 'Bodoni_Italic',
@@ -70,7 +70,7 @@ class _HomeBannerState extends State<HomeBanner> {
                   child: Text(
                     '& ACCESSORIES',
                     style: TextStyle(
-                      color: Colors.black.withOpacity(0.6),
+                      color: Colors.black.withOpacity(0.8),
                       fontSize: 33,
                       fontWeight: FontWeight.bold,
                       fontFamily: 'Bodoni_Italic',

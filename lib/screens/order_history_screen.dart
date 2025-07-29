@@ -3,7 +3,7 @@ import '../widgets/drawer.dart';
 import '../widgets/header.dart';
 import '../widgets/footer.dart';
 import '../widgets/bottom_navigation.dart';
-import 'package:the4m_app/screens/order_detail.dart';
+import 'package:the4m_app/screens/order_detail_screen.dart';
 
 class OrderHistoryScreen extends StatefulWidget {
   const OrderHistoryScreen({super.key});

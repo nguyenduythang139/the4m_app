@@ -528,6 +528,7 @@ class _ProductScreenState extends State<ProductScreen> {
                             : ListView.builder(
                               shrinkWrap: true,
                               physics: const NeverScrollableScrollPhysics(),
+                              padding: EdgeInsets.all(10),
                               itemCount: paginatedProducts.length,
                               itemBuilder: (context, index) {
                                 return buildProductItem(

@@ -8,14 +8,16 @@ class OrderDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
+        backgroundColor: Colors.white,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text("Chi tiết đơn hàng #9"),
         centerTitle: true,
-        actions: const [Icon(Icons.refresh)],
+        actions: const [Icon(Icons.refresh), SizedBox(width: 16)],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -27,21 +29,21 @@ class OrderDetailScreen extends StatelessWidget {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 12),
-            _buildInfoRow("Mã đơn hàng", "IK287399312"),
-            _buildInfoRow("Ngày đặt hàng", "12/06/2025"),
-            _buildInfoRow("Tên người nhận", "Nguyen Van A"),
-            _buildInfoRow("Số điện thoại", "0900000003"),
-            _buildInfoRow(
+            _buildInfoRow1("Mã đơn hàng", "IK287399312"),
+            _buildInfoRow1("Ngày đặt hàng", "12/06/2025"),
+            _buildInfoRow1("Tên người nhận", "Nguyen Van A"),
+            _buildInfoRow1("Số điện thoại", "0900000003"),
+            _buildInfoRow1(
               "Địa chỉ giao hàng",
               "1 Nguyễn Huệ, Phường Sài Gòn, TP Hồ Chí Minh",
             ),
-            _buildInfoRow(
-              "Trạng thái thanh toán",
+            _buildInfoRow1(
+              "Phương thức thanh toán",
               "Thanh toán tiền mặt khi nhận hàng",
             ),
             const Divider(height: 32),
-            _buildInfoRow("Tổng tiền sản phẩm", "1,078,000 đ"),
-            _buildInfoRow("Phí vận chuyển", "20,000 đ"),
+            _buildInfoRow2("Tổng tiền sản phẩm", "1,078,000 đ"),
+            _buildInfoRow2("Phí vận chuyển", "20,000 đ"),
             const SizedBox(height: 12),
             const Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -107,7 +109,26 @@ class OrderDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoRow(String label, String value) {
+  Widget _buildInfoRow1(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 150,
+            child: Text(
+              "$label",
+              style: const TextStyle(fontWeight: FontWeight.w500),
+            ),
+          ),
+          Expanded(child: Text(": " + value)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoRow2(String label, String value) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4.0),
       child: Row(
@@ -120,7 +141,9 @@ class OrderDetailScreen extends StatelessWidget {
               style: const TextStyle(fontWeight: FontWeight.w500),
             ),
           ),
-          Expanded(child: Text(value)),
+          Expanded(
+            child: Align(alignment: Alignment.centerRight, child: Text(value)),
+          ),
         ],
       ),
     );

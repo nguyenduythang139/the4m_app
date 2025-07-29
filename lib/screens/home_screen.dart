@@ -2,6 +2,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:the4m_app/screens/product_detail_screen.dart';
+import 'package:the4m_app/screens/product_screen.dart';
+import 'package:the4m_app/utils/smoothPushReplacement.dart';
 import 'package:the4m_app/widgets/drawer.dart';
 import 'package:the4m_app/widgets/footer.dart';
 import 'package:the4m_app/widgets/home_banner.dart';
@@ -280,7 +282,12 @@ class _HomeScreenState extends State<HomeScreen> {
                     SizedBox(height: 30),
                     Center(
                       child: GestureDetector(
-                        onTap: () {},
+                        onTap: () {
+                          smoothPushReplacementLikePush(
+                            context,
+                            ProductScreen(),
+                          );
+                        },
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
