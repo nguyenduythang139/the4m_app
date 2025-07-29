@@ -442,54 +442,58 @@ class _ProductScreenState extends State<ProductScreen> {
             const SizedBox(height: 4),
             // Chip filter đang chọn
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: EdgeInsets.symmetric(horizontal: 16),
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: [
-                    Chip(
-                      label: Text(selectedSortOption),
-                      backgroundColor: Colors.orange.shade300,
-                      shape: StadiumBorder(
-                        side: BorderSide(color: Colors.grey.shade400),
-                      ),
-                      deleteIcon: const Icon(Icons.close, size: 18),
-                      onDeleted: () {
-                        setState(() {
-                          selectedSortOption = 'Mới nhất';
-                          currentPage = 1;
-                        });
-                        fetchPageData();
-                      },
-                    ),
-                    const SizedBox(width: 8),
-                    ...selectedProductFilters.map((filter) {
-                      return Padding(
-                        padding: const EdgeInsets.only(right: 8.0),
-                        child: Chip(
-                          label: Text(filter),
-                          backgroundColor:
-                              filter == 'Tất cả sản phẩm'
-                                  ? Colors.white
-                                  : Colors.orange.shade300,
-                          shape: StadiumBorder(
-                            side: BorderSide(color: Colors.grey.shade400),
-                          ),
-                          deleteIcon: const Icon(Icons.close, size: 18),
-                          onDeleted: () {
-                            setState(() {
-                              selectedProductFilters.remove(filter);
-                              if (selectedProductFilters.isEmpty) {
-                                selectedProductFilters.add('Tất cả sản phẩm');
-                              }
-                              currentPage = 1;
-                            });
-                            fetchPageData();
-                          },
+                child: SizedBox(
+                  width: MediaQuery.of(context).size.width,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Chip(
+                        label: Text(selectedSortOption),
+                        backgroundColor: Colors.orange.shade300,
+                        shape: StadiumBorder(
+                          side: BorderSide(color: Colors.grey.shade400),
                         ),
-                      );
-                    }).toList(),
-                  ],
+                        deleteIcon: const Icon(Icons.close, size: 18),
+                        onDeleted: () {
+                          setState(() {
+                            selectedSortOption = 'Mới nhất';
+                            currentPage = 1;
+                          });
+                          fetchPageData();
+                        },
+                      ),
+                      const SizedBox(width: 8),
+                      ...selectedProductFilters.map((filter) {
+                        return Padding(
+                          padding: const EdgeInsets.only(right: 8.0),
+                          child: Chip(
+                            label: Text(filter),
+                            backgroundColor:
+                                filter == 'Tất cả sản phẩm'
+                                    ? Colors.white
+                                    : Colors.orange.shade300,
+                            shape: StadiumBorder(
+                              side: BorderSide(color: Colors.grey.shade400),
+                            ),
+                            deleteIcon: const Icon(Icons.close, size: 18),
+                            onDeleted: () {
+                              setState(() {
+                                selectedProductFilters.remove(filter);
+                                if (selectedProductFilters.isEmpty) {
+                                  selectedProductFilters.add('Tất cả sản phẩm');
+                                }
+                                currentPage = 1;
+                              });
+                              fetchPageData();
+                            },
+                          ),
+                        );
+                      }).toList(),
+                    ],
+                  ),
                 ),
               ),
             ),
