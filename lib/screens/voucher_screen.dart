@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:the4m_app/screens/cart_screen.dart';
-import 'package:the4m_app/utils/smoothPushReplacement.dart';
 import 'package:the4m_app/widgets/voucher_item.dart';
 
 class VoucherScreen extends StatefulWidget {
