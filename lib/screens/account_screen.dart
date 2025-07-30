@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:the4m_app/models/user_provider.dart';
 import 'package:the4m_app/screens/home_screen.dart';
 import 'package:the4m_app/screens/login_screen.dart';
 import 'package:the4m_app/screens/myinfo_screen.dart';
@@ -10,7 +11,10 @@ import 'package:the4m_app/widgets/bottom_navigation.dart';
 import 'package:the4m_app/widgets/drawer.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:the4m_app/screens/order_history_screen.dart';
+import 'package:provider/provider.dart';
+import 'package:the4m_app/models/user_provider.dart';
 
 class Account_Screen extends StatefulWidget {
   const Account_Screen({Key? key}) : super(key: key);
@@ -74,6 +78,7 @@ class _Account_ScreenState extends State<Account_Screen> {
 
   @override
   Widget build(BuildContext context) {
+    final userProvider = Provider.of<UserProvider>(context);
     return Scaffold(
       backgroundColor: Colors.white,
       drawer: CustomDrawer(
@@ -169,13 +174,13 @@ class _Account_ScreenState extends State<Account_Screen> {
                 ],
               ),
               child: Row(
-                children: const [
+                children: [
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Phước Nguyễn',
+                          userProvider.hoTen ?? "Đang tải ...",
                           style: TextStyle(
                             fontSize: 18,
                             fontFamily: 'NotoSerif_2',
@@ -183,7 +188,7 @@ class _Account_ScreenState extends State<Account_Screen> {
                         ),
                         SizedBox(height: 5),
                         Text(
-                          'huuphuoc@gmail.com',
+                          userProvider.email ?? "Đang tải ...",
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w300,

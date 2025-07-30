@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:provider/provider.dart';
+import 'package:the4m_app/models/user_provider.dart';
 import 'package:the4m_app/screens/account_screen.dart';
 import 'package:the4m_app/screens/blog_screen.dart';
 import 'package:the4m_app/screens/contact_screen.dart';
@@ -26,6 +30,7 @@ class _CustomDrawerState extends State<CustomDrawer> {
 
   @override
   Widget build(BuildContext context) {
+    final userProvider = Provider.of<UserProvider>(context);
     return Drawer(
       child: Container(
         padding: EdgeInsets.symmetric(vertical: 50, horizontal: 20),
@@ -45,10 +50,10 @@ class _CustomDrawerState extends State<CustomDrawer> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Phuoc Nguyen',
+                      userProvider.hoTen ?? "Đang tải ...",
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
-                    Text('phuocnguyen@gmail.com'),
+                    Text(userProvider.email ?? "Đang tải ..."),
                   ],
                 ),
               ],

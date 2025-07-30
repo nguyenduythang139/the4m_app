@@ -1,4 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:the4m_app/models/user_provider.dart';
 import 'package:the4m_app/screens/forgotpassword_screen';
 import 'dart:async';
 import 'package:the4m_app/screens/home_screen.dart';
@@ -202,6 +205,10 @@ class _LoginScreenState extends State<LoginScreen> {
       try {
         final userCredential = await FirebaseAuth.instance
             .signInWithEmailAndPassword(email: email, password: matKhau);
+        final user = userCredential.user;
+        if (user != null) {
+          await context.read<UserProvider>().loadUserData(user);
+        }
 
         if (context.mounted) {
           smoothPushReplacementLikePush(context, HomeScreen());
@@ -381,9 +388,33 @@ class _LoginScreenState extends State<LoginScreen> {
         idToken: googleAuth.idToken,
       );
 
-      final UserCredential = await FirebaseAuth.instance.signInWithCredential(
+      final userCredential = await FirebaseAuth.instance.signInWithCredential(
         credential,
       );
+
+      final User? user = userCredential.user;
+      if (user == null) return;
+
+      final docRef = FirebaseFirestore.instance
+          .collection('KhachHang')
+          .doc(user.uid);
+      final doc = await docRef.get();
+
+      if (!doc.exists) {
+        await docRef.set({
+          'maKH': user.uid,
+          'hoTen': user.displayName ?? 'Người dùng mới',
+          'ngaySinh': '',
+          'gioiTinh': '',
+          'soDienThoai': '',
+          'soNha': '',
+          'phuong': '',
+          'thanhPho': '',
+          'maTK': user.uid,
+        });
+      }
+
+      await context.read<UserProvider>().loadUserData(user);
 
       if (context.mounted) {
         smoothPushReplacementLikePush(context, HomeScreen());

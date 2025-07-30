@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:the4m_app/screens/cart_screen.dart';
+import 'package:the4m_app/screens/search_screen.dart';
 import 'package:the4m_app/utils/smoothPushReplacement.dart';
 import 'package:the4m_app/widgets/cart_notify.dart';
 
@@ -50,7 +51,9 @@ class _HeaderState extends State<Header> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 IconButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    smoothPushReplacementLikePush(context, SearchScreen());
+                  },
                   icon: const Icon(Icons.search),
                   iconSize: 30,
                   color: Colors.black,

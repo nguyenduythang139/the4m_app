@@ -1,9 +1,31 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:provider/provider.dart';
+import 'package:the4m_app/models/user_provider.dart';
+import 'package:the4m_app/screens/home_screen.dart';
+import 'package:the4m_app/utils/smoothPushReplacement.dart';
 import 'login_screen.dart';
 import 'register_screen.dart';
 
-class WaitingScreen extends StatelessWidget {
+class WaitingScreen extends StatefulWidget {
   const WaitingScreen({super.key});
+
+  @override
+  State<WaitingScreen> createState() => _WaitingScreenState();
+}
+
+class _WaitingScreenState extends State<WaitingScreen> {
+  @override
+  void initState() {
+    super.initState();
+
+    FirebaseAuth.instance.authStateChanges().listen((User? user) async {
+      if (user != null) {
+        await context.read<UserProvider>().loadUserData(user);
+        smoothPushReplacementLikePush(context, HomeScreen());
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {

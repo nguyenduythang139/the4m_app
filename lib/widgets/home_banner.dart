@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:the4m_app/screens/product_screen.dart';
+import 'package:the4m_app/utils/smoothPushReplacement.dart';
 
 class HomeBanner extends StatefulWidget {
   @override
@@ -100,16 +102,23 @@ class _HomeBannerState extends State<HomeBanner> {
                         horizontal: 30,
                         vertical: 5,
                       ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.search, color: Colors.white, size: 35),
-                          SizedBox(width: 10),
-                          Text(
-                            'KHÁM PHÁ NGAY',
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ],
+                      child: GestureDetector(
+                        onTap:
+                            () => smoothPushReplacementLikePush(
+                              context,
+                              ProductScreen(),
+                            ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.search, color: Colors.white, size: 35),
+                            SizedBox(width: 10),
+                            Text(
+                              'KHÁM PHÁ NGAY',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),

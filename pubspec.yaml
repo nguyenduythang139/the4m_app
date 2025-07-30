@@ -17,6 +17,7 @@ dependencies:
   shared_preferences: ^2.2.3
   firebase_auth: ^4.19.1
   google_sign_in: ^6.2.1
+  provider: ^6.0.5
 
 dev_dependencies:
   flutter_test:

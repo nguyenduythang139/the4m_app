@@ -2,6 +2,10 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:the4m_app/widgets/bottom_navigation.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:provider/provider.dart';
+import 'package:the4m_app/models/user_provider.dart';
 
 class MyInfoScreen extends StatefulWidget {
   const MyInfoScreen({Key? key}) : super(key: key);
@@ -11,17 +15,26 @@ class MyInfoScreen extends StatefulWidget {
 }
 
 class _MyInfoScreenState extends State<MyInfoScreen> {
-  final _nameController = TextEditingController(text: "Nguyễn Hữu Phước");
-  final _genderController = TextEditingController(text: "Nam");
-  final _dobController = TextEditingController(text: "16/08/2004");
-  final _phoneController = TextEditingController(text: "0398 906 053");
-  final _emailController = TextEditingController(text: "huuphuoc@gmail.com");
-  final _addressController = TextEditingController(
-    text: "387 đường kênh 7, xã Tân Nhựt, huyện Bình Chánh, Tp. Hồ Chí Minh",
-  );
+  final _nameController = TextEditingController();
+  final _genderController = TextEditingController();
+  final _dobController = TextEditingController();
+  final _phoneController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _addressController = TextEditingController();
 
   File? _avatarImage;
   File? _backgroundImage;
+
+  @override
+  void initState() {
+    super.initState();
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Provider.of<UserProvider>(context, listen: false).loadUserData(user);
+      });
+    }
+  }
 
   Future<void> _pickAvatarImage() async {
     final picked = await ImagePicker().pickImage(source: ImageSource.gallery);
@@ -81,6 +94,15 @@ class _MyInfoScreenState extends State<MyInfoScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final userProvider = Provider.of<UserProvider>(context);
+
+    _nameController.text = userProvider.hoTen ?? '';
+    _genderController.text = userProvider.gioiTinh ?? '';
+    _dobController.text = userProvider.ngaySinh ?? '';
+    _phoneController.text = userProvider.soDienThoai ?? '';
+    _emailController.text = userProvider.email ?? '';
+    _addressController.text =
+        "${userProvider.soNha ?? ''}, ${userProvider.phuong ?? ''}, ${userProvider.thanhPho ?? ''}";
     return Scaffold(
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
