@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:the4m_app/models/cart.dart';
 import 'package:the4m_app/models/user_provider.dart';
 import 'package:the4m_app/screens/forgotpassword_screen';
 import 'dart:async';
@@ -9,6 +10,7 @@ import 'package:the4m_app/screens/register_screen.dart';
 import 'package:the4m_app/utils/smoothPushReplacement.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:the4m_app/widgets/cart_notify.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -208,6 +210,8 @@ class _LoginScreenState extends State<LoginScreen> {
         final user = userCredential.user;
         if (user != null) {
           await context.read<UserProvider>().loadUserData(user);
+          cartNotify.updateCount(0);
+          fetchCartDataForUser(user.uid);
         }
 
         if (context.mounted) {
@@ -415,6 +419,8 @@ class _LoginScreenState extends State<LoginScreen> {
       }
 
       await context.read<UserProvider>().loadUserData(user);
+      cartNotify.updateCount(0);
+      fetchCartDataForUser(user.uid);
 
       if (context.mounted) {
         smoothPushReplacementLikePush(context, HomeScreen());
@@ -430,5 +436,20 @@ class _LoginScreenState extends State<LoginScreen> {
         });
       }
     }
+  }
+
+  Future<void> fetchCartDataForUser(String uid) async {
+    final cartDoc =
+        await FirebaseFirestore.instance
+            .collection('TaiKhoan')
+            .doc(uid)
+            .collection('GioHang')
+            .get();
+    final quantity = cartDoc.docs.fold<int>(0, (sum, doc) {
+      final data = doc.data();
+      final soLuong = (data['soLuong'] ?? 0);
+      return sum + (soLuong is int ? soLuong : (soLuong as num).toInt());
+    });
+    cartNotify.updateCount(quantity);
   }
 }

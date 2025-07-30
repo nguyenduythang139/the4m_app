@@ -112,51 +112,53 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     ];
   }
 
-  // Future<void> addToCart() async {
-  //   final currentUser = FirebaseAuth.instance.currentUser;
+  Future<void> addToCart() async {
+    final currentUser = FirebaseAuth.instance.currentUser;
 
-  //   if (currentUser == null) {
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       SnackBar(content: Text("Vui lòng đăng nhập để tiếp tục mua hàng")),
-  //     );
-  //     return;
-  //   }
+    if (currentUser == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Vui lòng đăng nhập để tiếp tục mua hàng")),
+      );
+      return;
+    }
 
-  //   final cartItem = Cart(
-  //     maSP: widget.product.id,
-  //     tenSP: widget.product.tenSP,
-  //     hinhAnh: widget.product.hinhAnh,
-  //     gia: widget.product.giaMoi,
-  //     kichThuoc: widget.product.kichThuoc,
-  //     mauSac: widget.product.mauSac,
-  //     soLuong: 1,
-  //   );
+    final cartItem = Cart(
+      id: "",
+      maSP: widget.product.maSP,
+      tenSP: widget.product.tenSP,
+      hinhAnh: widget.product.hinhAnh[0],
+      gia: widget.product.giaMoi,
+      kichThuoc: selectedSize,
+      mauSac: selectedColor,
+      soLuong: 1,
+    );
 
-  //   final cartRef = FirebaseFirestore.instance
-  //       .collection('TaiKhoan')
-  //       .doc(currentUser.uid)
-  //       .collection("GioHang");
+    final cartRef = FirebaseFirestore.instance
+        .collection('TaiKhoan')
+        .doc(currentUser.uid)
+        .collection("GioHang");
 
-  //   final existing =
-  //       await cartRef
-  //           .where('maSP', isEqualTo: cartItem.maSP)
-  //           .where('kichThuoc', isEqualTo: cartItem.kichThuoc)
-  //           .where('mauSac', isEqualTo: cartItem.mauSac)
-  //           .get();
+    final existing =
+        await cartRef
+            .where('maSP', isEqualTo: cartItem.maSP)
+            .where('kichThuoc', isEqualTo: cartItem.kichThuoc)
+            .where('mauSac', isEqualTo: cartItem.mauSac)
+            .get();
 
-  //   if (existing.docs.isNotEmpty) {
-  //     final doc = existing.docs.first;
-  //     await cartRef.doc(doc.id).update({'soLuong': doc['soLuong'] + 1});
-  //     cartNotify.increment();
-  //   } else {
-  //     await cartRef.add(cartItem.toMap());
-  //     cartNotify.increment();
-  //   }
+    if (existing.docs.isNotEmpty) {
+      final doc = existing.docs.first;
+      await cartRef.doc(doc.id).update({'soLuong': doc['soLuong'] + 1});
+      cartNotify.increment();
+    } else {
+      final docRef = await cartRef.add(cartItem.toMap());
+      await docRef.update({"id": docRef.id});
+      cartNotify.increment();
+    }
 
-  //   ScaffoldMessenger.of(
-  //     context,
-  //   ).showSnackBar(SnackBar(content: Text("Thêm sản phẩm thành công!")));
-  // }
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text("Thêm sản phẩm thành công!")));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -304,7 +306,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     SizedBox(height: 30),
                     //Nut them san pham
                     GestureDetector(
-                      onTap: () => {}, //addToCart(),
+                      onTap: () => addToCart(),
                       child: Container(
                         color: Colors.black,
                         padding: EdgeInsets.fromLTRB(10, 20, 15, 20),
