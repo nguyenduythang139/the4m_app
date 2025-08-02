@@ -7,7 +7,6 @@ import 'package:the4m_app/models/user_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
   await Firebase.initializeApp();
 
   SystemChrome.setSystemUIOverlayStyle(

@@ -1,20 +1,24 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:the4m_app/models/user_provider.dart';
-import 'package:the4m_app/screens/home_screen.dart';
-import 'package:the4m_app/screens/login_screen.dart';
-import 'package:the4m_app/screens/myinfo_screen.dart';
-import 'package:the4m_app/screens/search_screen.dart';
-import 'package:the4m_app/utils/smoothPushReplacement.dart';
-import 'package:the4m_app/widgets/bottom_navigation.dart';
-import 'package:the4m_app/widgets/drawer.dart';
+import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:the4m_app/screens/order_history_screen.dart';
-import 'package:provider/provider.dart';
-import 'package:the4m_app/models/user_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' as p;
+import 'package:image/image.dart' as img;
+
+import '../models/user_provider.dart';
+import '../screens/home_screen.dart';
+import '../screens/login_screen.dart';
+import '../screens/search_screen.dart';
+import '../screens/myinfo_screen.dart';
+import '../screens/order_history_screen.dart';
+import '../utils/smoothPushReplacement.dart';
+import '../widgets/bottom_navigation.dart';
+import '../widgets/drawer.dart';
 
 class Account_Screen extends StatefulWidget {
   const Account_Screen({Key? key}) : super(key: key);
@@ -23,34 +27,90 @@ class Account_Screen extends StatefulWidget {
   State<Account_Screen> createState() => _Account_ScreenState();
 }
 
-class _Account_ScreenState extends State<Account_Screen> {
+class _Account_ScreenState extends State<Account_Screen>
+    with WidgetsBindingObserver {
   File? _avatarImage;
   File? _backgroundImage;
   String selectedPage = "Tài khoản";
 
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _loadImagesFromStorage();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this); //để cleanup
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _loadImagesFromStorage(); // reload ảnh khi quay lại
+    }
+  }
+
+  Future<File> resizeAndSaveImage(File file, String fileName) async {
+    final dir = await getApplicationDocumentsDirectory();
+    final bytes = await file.readAsBytes();
+    final image = img.decodeImage(bytes);
+    final resized = img.copyResize(image!, width: 600);
+    final newPath = p.join(dir.path, fileName);
+    final newFile = File(newPath)..writeAsBytesSync(img.encodeJpg(resized));
+    return newFile;
+  }
+
+  Future<void> _loadImagesFromStorage() async {
+    final prefs = await SharedPreferences.getInstance();
+    final avatarPath = prefs.getString('avatar_path');
+    final backgroundPath = prefs.getString('background_path');
+    setState(() {
+      if (avatarPath != null) _avatarImage = File(avatarPath);
+      if (backgroundPath != null) _backgroundImage = File(backgroundPath);
+    });
+  }
+
   Future<void> _pickImage() async {
-    final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    final pickedFile = await ImagePicker().pickImage(
+      source: ImageSource.gallery,
+    );
     if (pickedFile != null) {
+      final timestamp = DateTime.now().millisecondsSinceEpoch;
+      final fileName = 'avatar_$timestamp.jpg';
+      final saved = await resizeAndSaveImage(File(pickedFile.path), fileName);
+
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('avatar_path', saved.path);
+
       setState(() {
-        _avatarImage = File(pickedFile.path);
+        _avatarImage = File(saved.path);
       });
     }
   }
 
   Future<void> _pickBackgroundImage() async {
-    final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    final pickedFile = await ImagePicker().pickImage(
+      source: ImageSource.gallery,
+    );
     if (pickedFile != null) {
+      final timestamp = DateTime.now().millisecondsSinceEpoch;
+      final fileName = 'background_$timestamp.jpg';
+      final saved = await resizeAndSaveImage(File(pickedFile.path), fileName);
+
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('background_path', saved.path);
+
       setState(() {
-        _backgroundImage = File(pickedFile.path);
+        _backgroundImage = File(saved.path);
       });
     }
   }
 
   void _handleTabChange(int index) {
-    if (index == 4) return; // Đã ở màn hình Tài khoản
-
+    if (index == 4) return;
     Widget screen;
     switch (index) {
       case 0:
@@ -59,16 +119,9 @@ class _Account_ScreenState extends State<Account_Screen> {
       case 1:
         screen = SearchScreen();
         break;
-      case 2:
-        // TODO: Thêm màn hình mua sắm
-        return;
-      case 3:
-        // TODO: Thêm màn hình yêu thích
-        return;
       default:
         return;
     }
-
     Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(builder: (context) => screen),
@@ -84,37 +137,29 @@ class _Account_ScreenState extends State<Account_Screen> {
       drawer: CustomDrawer(
         selectedPage: selectedPage,
         onSelect: (String newPage) {
-          setState(() {
-            selectedPage = newPage;
-          });
+          setState(() => selectedPage = newPage);
           Navigator.pop(context);
         },
       ),
       body: Stack(
         children: [
-          // Cover image
-          Positioned(
-            top: 0,
-            child: GestureDetector(
-              onTap: _pickBackgroundImage,
-              child:
-                  _backgroundImage != null
-                      ? Image.file(
-                        _backgroundImage!,
-                        width: MediaQuery.of(context).size.width,
-                        height: 235,
-                        fit: BoxFit.cover,
-                      )
-                      : Image.asset(
-                        'lib/assets/images/background_1.png',
-                        width: MediaQuery.of(context).size.width,
-                        height: 235,
-                        fit: BoxFit.cover,
-                      ),
-            ),
+          GestureDetector(
+            onTap: _pickBackgroundImage,
+            child:
+                _backgroundImage != null
+                    ? Image.file(
+                      _backgroundImage!,
+                      width: MediaQuery.of(context).size.width,
+                      height: 235,
+                      fit: BoxFit.cover,
+                    )
+                    : Image.asset(
+                      'lib/assets/images/background_1.png',
+                      width: MediaQuery.of(context).size.width,
+                      height: 235,
+                      fit: BoxFit.cover,
+                    ),
           ),
-
-          // Avatar
           Align(
             alignment: Alignment.topCenter,
             child: Padding(
@@ -153,14 +198,12 @@ class _Account_ScreenState extends State<Account_Screen> {
               ),
             ),
           ),
-
-          // User info
           Positioned(
             top: 320,
             left: 20,
             right: 20,
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(color: const Color(0xFFD9D9D9)),
@@ -181,15 +224,15 @@ class _Account_ScreenState extends State<Account_Screen> {
                       children: [
                         Text(
                           userProvider.hoTen ?? "Đang tải ...",
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 18,
                             fontFamily: 'NotoSerif_2',
                           ),
                         ),
-                        SizedBox(height: 5),
+                        const SizedBox(height: 5),
                         Text(
                           userProvider.email ?? "Đang tải ...",
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w300,
                           ),
@@ -197,12 +240,11 @@ class _Account_ScreenState extends State<Account_Screen> {
                       ],
                     ),
                   ),
-                  Icon(Icons.settings, size: 30, color: Colors.grey),
+                  const Icon(Icons.settings, size: 30, color: Colors.grey),
                 ],
               ),
             ),
           ),
-          // Options
           Positioned(
             top: 435,
             left: 20,
@@ -259,20 +301,17 @@ class _Account_ScreenState extends State<Account_Screen> {
         } else if (title == 'Đăng xuất') {
           try {
             await FirebaseAuth.instance.signOut();
-
             final GoogleSignIn googleSignIn = GoogleSignIn();
-            if (await googleSignIn.isSignedIn()) {
-              await googleSignIn.signOut();
-            }
+            if (await googleSignIn.isSignedIn()) await googleSignIn.signOut();
             if (context.mounted) {
               smoothPushReplacementLikePush(context, LoginScreen());
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(SnackBar(content: Text("Đăng xuất thành công!")));
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text("Đăng xuất thành công!")),
+              );
             }
           } catch (e) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text("Lỗi đăng xuất, vui lòng thử lại!")),
+              const SnackBar(content: Text("Lỗi đăng xuất, vui lòng thử lại!")),
             );
           }
         }
