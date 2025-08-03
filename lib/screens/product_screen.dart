@@ -66,9 +66,20 @@ class _ProductScreenState extends State<ProductScreen> {
         'maSP': product.maSP,
         'tenSP': product.tenSP,
         'hinhAnh': product.hinhAnh,
-        'gia': product.giaMoi,
+        'giaMoi': product.giaMoi,
+        'giaCu': product.giaCu,
         'moTa': product.moTa,
-        // Thêm các trường khác nếu cần
+        'mauSac': product.mauSac,
+        'kichThuoc': product.kichThuoc,
+        'loaiSP': product.loaiSP,
+        'thuongHieu': product.thuongHieu,
+        'chatLieu': product.chatLieu,
+        'baoQuan': product.baoQuan,
+        'thuocTay': product.thuocTay,
+        'giatKho': product.giatKho,
+        'sayKho': product.sayKho,
+        'nhietDoUi': product.nhietDoUi,
+        'loaiSPTQ': product.loaiSPTQ,
       });
     }
   }

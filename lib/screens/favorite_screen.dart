@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:the4m_app/models/cart.dart';
+import 'package:the4m_app/models/product.dart';
 import 'package:the4m_app/screens/product_detail_screen.dart';
 import 'package:the4m_app/utils/smoothPushReplacement.dart';
 import 'package:the4m_app/widgets/bottom_navigation.dart';
+import 'package:the4m_app/widgets/cart_notify.dart';
 import 'package:the4m_app/widgets/devider.dart';
 import 'package:the4m_app/widgets/drawer.dart';
 import 'package:the4m_app/widgets/header.dart';
@@ -40,13 +43,45 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
     return formatter.format(0);
   }
 
-  List<Map<String, dynamic>> likedProducts = [];
+  // List<Map<String, dynamic>> likedProducts = [];
 
   @override
   void initState() {
     super.initState();
     fetchFavorites();
   }
+
+  // Future<void> fetchFavorites() async {
+  //   final user = FirebaseAuth.instance.currentUser;
+  //   if (user == null) return;
+
+  //   final snapshot =
+  //       await FirebaseFirestore.instance
+  //           .collection('TaiKhoan')
+  //           .doc(user.uid)
+  //           .collection('YeuThich')
+  //           .get();
+
+  //   setState(() {
+  //     likedProducts =
+  //         snapshot.docs.map((doc) {
+  //           final data = doc.data();
+  //           return {
+  //             'id': doc.id,
+  //             'image':
+  //                 (data['hinhAnh'] is List && data['hinhAnh'].isNotEmpty)
+  //                     ? data['hinhAnh'][0]
+  //                     : 'assets/images/placeholder.png',
+  //             'name': data['tenSP'],
+  //             'desc': data['moTa'] ?? '',
+  //             'price': data['giaMoi'],
+  //             'liked': true,
+  //           };
+  //         }).toList();
+  //   });
+  // }
+
+  List<Product> likedProducts = [];
 
   Future<void> fetchFavorites() async {
     final user = FirebaseAuth.instance.currentUser;
@@ -63,31 +98,61 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
       likedProducts =
           snapshot.docs.map((doc) {
             final data = doc.data();
-            return {
-              'id': doc.id,
-              'image':
-                  (data['hinhAnh'] is List && data['hinhAnh'].isNotEmpty)
-                      ? data['hinhAnh'][0]
-                      : 'assets/images/placeholder.png',
-              'name': data['tenSP'],
-              'desc': data['moTa'] ?? '',
-              'price': data['gia'],
-              'liked': true,
-            };
+            return Product(
+              maSP: data['maSP'],
+              tenSP: data['tenSP'],
+              giaCu: data['giaCu'],
+              giaMoi: data['giaMoi'],
+              moTa: data['moTa'],
+              hinhAnh: List<String>.from(data['hinhAnh']),
+              mauSac: List<String>.from(data['mauSac']),
+              kichThuoc: List<String>.from(data['kichThuoc']),
+              loaiSP: data['loaiSP'],
+              thuongHieu: data['thuongHieu'],
+              chatLieu: data['chatLieu'],
+              baoQuan: data['baoQuan'],
+              thuocTay: data['thuocTay'],
+              giatKho: data['giatKho'],
+              sayKho: data['sayKho'],
+              nhietDoUi: data['nhietDoUi'],
+              loaiSPTQ: data['loaiSPTQ'],
+              liked: true,
+            );
           }).toList();
     });
   }
 
-  Future<void> removeFromFavorites(String docId, int index) async {
+  // Future<void> removeFromFavorites(String docId, int index) async {
+  //   final user = FirebaseAuth.instance.currentUser;
+  //   if (user == null) return;
+
+  //   await FirebaseFirestore.instance
+  //       .collection('TaiKhoan')
+  //       .doc(user.uid)
+  //       .collection('YeuThich')
+  //       .doc(docId)
+  //       .delete();
+
+  //   setState(() {
+  //     likedProducts.removeAt(index);
+  //   });
+  // }
+
+  Future<void> removeFromFavorites(String maSP, int index) async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
 
-    await FirebaseFirestore.instance
-        .collection('TaiKhoan')
-        .doc(user.uid)
-        .collection('YeuThich')
-        .doc(docId)
-        .delete();
+    final querySnapshot =
+        await FirebaseFirestore.instance
+            .collection('TaiKhoan')
+            .doc(user.uid)
+            .collection('YeuThich')
+            .where('maSP', isEqualTo: maSP)
+            .get();
+
+    for (var doc in querySnapshot.docs) {
+      await doc.reference.delete();
+    }
 
     setState(() {
       likedProducts.removeAt(index);
@@ -213,7 +278,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                     padding: const EdgeInsets.all(16),
                     itemCount: likedProducts.length,
                     itemBuilder: (context, index) {
-                      final item = likedProducts[index];
+                      final product = likedProducts[index];
                       return Container(
                         margin: const EdgeInsets.only(bottom: 16),
                         decoration: BoxDecoration(
@@ -233,7 +298,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                                     borderRadius: BorderRadius.circular(10),
                                   ),
                                   child: Image.asset(
-                                    item['image'],
+                                    product.hinhAnh[0],
                                     fit: BoxFit.cover,
                                     errorBuilder:
                                         (context, error, stackTrace) =>
@@ -252,7 +317,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        item['name'],
+                                        product.tenSP,
                                         style: const TextStyle(
                                           fontSize: 14,
                                           fontWeight: FontWeight.bold,
@@ -261,7 +326,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                                       ),
                                       const SizedBox(height: 2),
                                       Text(
-                                        item['desc'],
+                                        product.moTa,
                                         style: const TextStyle(
                                           fontSize: 12,
                                           color: Colors.black54,
@@ -270,7 +335,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                                       ),
                                       const SizedBox(height: 2),
                                       Text(
-                                        "${formatCurrency(item['price'])}",
+                                        "${formatCurrency(product.giaMoi)}",
                                         style: const TextStyle(
                                           color: Colors.redAccent,
                                           fontSize: 14,
@@ -279,7 +344,18 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                                       ),
                                       const SizedBox(height: 6),
                                       ElevatedButton.icon(
-                                        onPressed: () {},
+                                        onPressed: () {
+                                          Navigator.pushReplacement(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder:
+                                                  (context) =>
+                                                      ProductDetailScreen(
+                                                        product: product,
+                                                      ),
+                                            ),
+                                          );
+                                        },
                                         icon: const Icon(
                                           Icons.add_shopping_cart,
                                           size: 16,
@@ -346,15 +422,18 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                                             ),
                                       );
                                       if (confirm == true) {
-                                        removeFromFavorites(item['id'], index);
+                                        removeFromFavorites(
+                                          product.maSP,
+                                          index,
+                                        );
                                       }
                                     },
                                     child: Icon(
-                                      likedProducts[index]['liked']
+                                      product.liked
                                           ? Icons.favorite
                                           : Icons.favorite_border,
                                       color:
-                                          likedProducts[index]['liked']
+                                          product.liked
                                               ? Colors.orange
                                               : Colors.orange,
                                     ),
