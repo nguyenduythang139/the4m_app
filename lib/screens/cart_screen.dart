@@ -11,7 +11,6 @@ import 'package:the4m_app/screens/favorite_screen.dart';
 import 'package:the4m_app/screens/home_screen.dart';
 import 'package:the4m_app/screens/our_story_screen.dart';
 import 'package:the4m_app/screens/payment_screen.dart';
-import 'package:the4m_app/screens/product_detail_screen.dart';
 import 'package:the4m_app/screens/voucher_screen.dart';
 import 'package:the4m_app/utils/smoothPushReplacement.dart';
 import 'package:the4m_app/widgets/cart_item.dart';

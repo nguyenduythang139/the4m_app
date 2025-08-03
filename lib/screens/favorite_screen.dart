@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:the4m_app/models/cart.dart';
 import 'package:the4m_app/models/product.dart';
 import 'package:the4m_app/screens/product_detail_screen.dart';
 import 'package:the4m_app/utils/smoothPushReplacement.dart';
 import 'package:the4m_app/widgets/bottom_navigation.dart';
-import 'package:the4m_app/widgets/cart_notify.dart';
 import 'package:the4m_app/widgets/devider.dart';
 import 'package:the4m_app/widgets/drawer.dart';
 import 'package:the4m_app/widgets/header.dart';
@@ -43,8 +41,6 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
     return formatter.format(0);
   }
 
-  // List<Map<String, dynamic>> likedProducts = [];
-
   @override
   void initState() {
     super.initState();
@@ -75,8 +71,6 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
               giaMoi: data['giaMoi'],
               moTa: data['moTa'],
               hinhAnh: List<String>.from(data['hinhAnh']),
-              mauSac: List<String>.from(data['mauSac']),
-              kichThuoc: List<String>.from(data['kichThuoc']),
               loaiSP: data['loaiSP'],
               thuongHieu: data['thuongHieu'],
               chatLieu: data['chatLieu'],

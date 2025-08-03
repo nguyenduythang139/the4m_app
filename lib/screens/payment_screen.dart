@@ -6,14 +6,10 @@ import 'package:the4m_app/models/cart.dart';
 import 'package:the4m_app/models/delivery_method_model.dart';
 import 'package:the4m_app/models/payment_method_model.dart';
 import 'package:the4m_app/models/voucher.dart';
-import 'package:the4m_app/screens/MomoWebViewScreen.dart';
 import 'package:the4m_app/screens/add_address_screen.dart';
-import 'package:the4m_app/screens/cart_screen.dart';
 import 'package:the4m_app/screens/complete_order_screen.dart';
-import 'package:the4m_app/screens/vn_pay_payment_page.dart';
 import 'package:the4m_app/screens/voucher_screen.dart';
 import 'package:the4m_app/services/MomoPaymentService.dart';
-import 'package:the4m_app/utils/smoothPushReplacement.dart';
 import 'package:the4m_app/widgets/devider.dart';
 import 'package:the4m_app/widgets/header.dart';
 
@@ -131,6 +127,21 @@ class _PaymentScreenState extends State<PaymentScreen> {
         "thanhPho": thanhPho,
       },
     });
+  }
+
+  Future<void> clearCart() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    final cartRef = FirebaseFirestore.instance
+        .collection('TaiKhoan')
+        .doc(user.uid)
+        .collection('GioHang');
+
+    final snapshot = await cartRef.get();
+    for (var doc in snapshot.docs) {
+      await cartRef.doc(doc.id).delete();
+    }
   }
 
   @override
@@ -742,6 +753,60 @@ class _PaymentScreenState extends State<PaymentScreen> {
             shape: const RoundedRectangleBorder(),
           ),
           onPressed: () async {
+            for (final cart in widget.cartList) {
+              final variantSnapshot =
+                  await FirebaseFirestore.instance
+                      .collection('SanPham')
+                      .doc(cart.maSP)
+                      .collection('bienThe')
+                      .where('mauSac', isEqualTo: cart.mauSac)
+                      .where('kichThuoc', isEqualTo: cart.kichThuoc)
+                      .limit(1)
+                      .get();
+
+              if (variantSnapshot.docs.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text("Sản phẩm ${cart.tenSP} không tồn tại."),
+                  ),
+                );
+                return; // dừng luôn
+              }
+
+              final stock = variantSnapshot.docs.first['soLuong'] ?? 0;
+              if (cart.soLuong > stock) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      "Sản phẩm ${cart.tenSP} (Size ${cart.kichThuoc}, Màu ${cart.mauSac}) chỉ còn $stock cái trong kho",
+                    ),
+                  ),
+                );
+                return; // dừng luôn
+              }
+            }
+
+            // Nếu qua hết check thì mới lưu đơn và trừ tồn kho
+            for (final cart in widget.cartList) {
+              final variantDoc =
+                  await FirebaseFirestore.instance
+                      .collection('SanPham')
+                      .doc(cart.maSP)
+                      .collection('bienThe')
+                      .where('mauSac', isEqualTo: cart.mauSac)
+                      .where('kichThuoc', isEqualTo: cart.kichThuoc)
+                      .limit(1)
+                      .get();
+
+              final docId = variantDoc.docs.first.id;
+              final currentStock = variantDoc.docs.first['soLuong'] ?? 0;
+              await FirebaseFirestore.instance
+                  .collection('SanPham')
+                  .doc(cart.maSP)
+                  .collection('bienThe')
+                  .doc(docId)
+                  .update({'soLuong': currentStock - cart.soLuong});
+            }
             if (selectedPaymentMethod?.name == "Thanh toán bằng momo") {
               await MoMoPaymentService().createPayment(1000);
             } else if (selectedPaymentMethod?.name == "Thanh toán tiền mặt") {
@@ -758,6 +823,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 phuong: phuong!,
                 thanhPho: thanhPho!,
               );
+
+              await clearCart();
+
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(

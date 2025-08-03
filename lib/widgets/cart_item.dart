@@ -61,25 +61,48 @@ class _CartItemState extends State<CartItem> {
       return;
     }
 
-    try {
-      final cartRef = FirebaseFirestore.instance
-          .collection('TaiKhoan')
-          .doc(FirebaseAuth.instance.currentUser!.uid)
-          .collection('GioHang')
-          .doc(widget.cart.id);
-
-      await cartRef.update({'soLuong': newQuantity});
-
-      setState(() {
-        soLuong = newQuantity;
-      });
-
-      widget.onQuantityChange(newQuantity);
-    } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("Cập nhật số lượng thất bại: $e")));
+    if (newQuantity > 5) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Bạn chỉ được mua tối đa 5 sản phẩm cho biến thể này"),
+        ),
+      );
+      return;
     }
+
+    final variantSnapshot =
+        await FirebaseFirestore.instance
+            .collection('SanPham')
+            .doc(widget.cart.maSP)
+            .collection('BienThe')
+            .where('mauSac', isEqualTo: widget.cart.mauSac)
+            .where('kichThuoc', isEqualTo: widget.cart.kichThuoc)
+            .limit(1)
+            .get();
+
+    if (variantSnapshot.docs.isNotEmpty) {
+      int stock = variantSnapshot.docs.first['soLuong'] ?? 0;
+      if (newQuantity > stock) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Chỉ còn $stock sản phẩm trong kho")),
+        );
+        return;
+      }
+    }
+
+    final cartRef = FirebaseFirestore.instance
+        .collection('TaiKhoan')
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .collection('GioHang')
+        .doc(widget.cart.id);
+
+    await cartRef.update({'soLuong': newQuantity});
+
+    setState(() {
+      soLuong = newQuantity;
+    });
+
+    widget.onQuantityChange(newQuantity);
   }
 
   @override

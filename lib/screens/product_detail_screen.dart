@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:the4m_app/screens/product_detail_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -38,6 +37,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   int selectedPage = 0;
   String selectedColor = '';
   String selectedSize = '';
+  List<String> availableColors = [];
+  List<String> availableSizes = [];
 
   bool isDeliveryExpanded = false;
   bool isReturnExpanded = false;
@@ -45,10 +46,72 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   @override
   void initState() {
     super.initState();
-    if (widget.product.mauSac.isNotEmpty)
-      selectedColor = widget.product.mauSac[0];
-    if (widget.product.kichThuoc.isNotEmpty)
-      selectedSize = widget.product.kichThuoc[0];
+    fetchVariants();
+  }
+
+  List<Map<String, dynamic>> allVariants = [];
+
+  Future<void> fetchVariants() async {
+    final snapshot =
+        await FirebaseFirestore.instance
+            .collection('SanPham')
+            .doc(widget.product.maSP)
+            .collection('bienThe')
+            .get();
+
+    allVariants =
+        snapshot.docs.map((doc) {
+          final data = doc.data();
+          return {
+            'mauSac': data['mauSac'] ?? '',
+            'kichThuoc': data['kichThuoc'] ?? '',
+            'soLuong': data['soLuong'] ?? 0,
+          };
+        }).toList();
+
+    final colors =
+        allVariants.map((v) => v['mauSac'] as String).toSet().toList();
+
+    setState(() {
+      availableColors = colors;
+      selectedColor = availableColors.isNotEmpty ? availableColors[0] : '';
+      availableSizes = getSizesForColor(selectedColor);
+      selectedSize = availableSizes.isNotEmpty ? availableSizes[0] : '';
+    });
+  }
+
+  List<String> sizeOrder = [
+    "S",
+    "M",
+    "L",
+    "XL",
+    "XXL",
+    "29",
+    "30",
+    "31",
+    "32",
+    "Free Size",
+  ];
+
+  List<String> getSizesForColor(String color) {
+    List<String> sizes =
+        allVariants
+            .where((v) => v['mauSac'] == color)
+            .map((v) => v['kichThuoc'] as String)
+            .toSet()
+            .toList();
+
+    // Sắp xếp theo thứ tự sizeOrder
+    sizes.sort((a, b) {
+      int indexA = sizeOrder.indexOf(a);
+      int indexB = sizeOrder.indexOf(b);
+      // nếu không có trong danh sách mặc định thì đặt cuối
+      if (indexA == -1) indexA = 999;
+      if (indexB == -1) indexB = 999;
+      return indexA.compareTo(indexB);
+    });
+
+    return sizes;
   }
 
   Color getColorFromName(String name) {
@@ -57,6 +120,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
         return Color(0xff0D0D0D);
       case 'trắng':
         return Color(0xffF6F6E7);
+      case 'xám':
+        return Color(0xff555555);
       case 'nâu':
         return Color(0xffCEC2AA);
       case 'xanh navy':
@@ -114,7 +179,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
 
   Future<void> addToCart() async {
     final currentUser = FirebaseAuth.instance.currentUser;
-
     if (currentUser == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Vui lòng đăng nhập để tiếp tục mua hàng")),
@@ -122,42 +186,87 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       return;
     }
 
-    final cartItem = Cart(
-      id: "",
-      maSP: widget.product.maSP,
-      tenSP: widget.product.tenSP,
-      hinhAnh: widget.product.hinhAnh[0],
-      gia: widget.product.giaMoi,
-      kichThuoc: selectedSize,
-      mauSac: selectedColor,
-      soLuong: 1,
-    );
+    try {
+      final variantQuery =
+          await FirebaseFirestore.instance
+              .collection('SanPham')
+              .doc(widget.product.maSP)
+              .collection('bienThe')
+              .where('mauSac', isEqualTo: selectedColor)
+              .where('kichThuoc', isEqualTo: selectedSize)
+              .limit(1)
+              .get();
 
-    final cartRef = FirebaseFirestore.instance
-        .collection('TaiKhoan')
-        .doc(currentUser.uid)
-        .collection("GioHang");
+      if (variantQuery.docs.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Biến thể này hiện không tồn tại")),
+        );
+        return;
+      }
 
-    final existing =
-        await cartRef
-            .where('maSP', isEqualTo: cartItem.maSP)
-            .where('kichThuoc', isEqualTo: cartItem.kichThuoc)
-            .where('mauSac', isEqualTo: cartItem.mauSac)
-            .get();
+      final variantDoc = variantQuery.docs.first;
+      final stock = variantDoc['soLuong'] ?? 0;
 
-    if (existing.docs.isNotEmpty) {
-      final doc = existing.docs.first;
-      await cartRef.doc(doc.id).update({'soLuong': doc['soLuong'] + 1});
+      if (stock <= 0) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text("Sản phẩm đã hết hàng")));
+        return;
+      }
+
+      final cartItem = Cart(
+        id: "",
+        maSP: widget.product.maSP,
+        tenSP: widget.product.tenSP,
+        hinhAnh: widget.product.hinhAnh[0],
+        gia: widget.product.giaMoi,
+        kichThuoc: selectedSize,
+        mauSac: selectedColor,
+        soLuong: 1,
+      );
+
+      final cartRef = FirebaseFirestore.instance
+          .collection('TaiKhoan')
+          .doc(currentUser.uid)
+          .collection("GioHang");
+
+      final existing =
+          await cartRef
+              .where('maSP', isEqualTo: cartItem.maSP)
+              .where('kichThuoc', isEqualTo: cartItem.kichThuoc)
+              .where('mauSac', isEqualTo: cartItem.mauSac)
+              .get();
+
+      if (existing.docs.isNotEmpty) {
+        final doc = existing.docs.first;
+        final currentQuantity = doc['soLuong'] ?? 0;
+
+        if (currentQuantity >= 5) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                "Bạn chỉ được mua tối đa 5 sản phẩm cho biến thể này",
+              ),
+            ),
+          );
+          return;
+        }
+
+        await cartRef.doc(doc.id).update({'soLuong': currentQuantity + 1});
+      } else {
+        final docRef = await cartRef.add(cartItem.toMap());
+        await docRef.update({"id": docRef.id});
+      }
+
       cartNotify.increment();
-    } else {
-      final docRef = await cartRef.add(cartItem.toMap());
-      await docRef.update({"id": docRef.id});
-      cartNotify.increment();
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Thêm sản phẩm thành công!")));
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Lỗi: $e")));
     }
-
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text("Thêm sản phẩm thành công!")));
   }
 
   @override
@@ -263,44 +372,63 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                             children: [
                               Row(
                                 children: [
-                                  Text(
+                                  const Text(
                                     "Màu sắc:",
                                     style: TextStyle(fontFamily: "TenorSans"),
                                   ),
-                                  SizedBox(width: 5),
-                                  ...widget.product.mauSac.map(
-                                    (color) => GestureDetector(
-                                      onTap:
-                                          () => setState(() {
-                                            selectedColor = color;
-                                          }),
-                                      child: ColorButton(
-                                        getColorFromName(color),
-                                        isSelected: selectedColor == color,
+                                  const SizedBox(width: 5),
+                                  if (availableColors.isEmpty)
+                                    const Text(
+                                      "Không có màu",
+                                      style: TextStyle(color: Colors.grey),
+                                    )
+                                  else
+                                    ...availableColors.map(
+                                      (color) => GestureDetector(
+                                        onTap:
+                                            () => setState(() {
+                                              selectedColor = color;
+                                              availableSizes = getSizesForColor(
+                                                color,
+                                              );
+                                              selectedSize =
+                                                  availableSizes.isNotEmpty
+                                                      ? availableSizes[0]
+                                                      : '';
+                                            }),
+                                        child: ColorButton(
+                                          getColorFromName(color),
+                                          isSelected: selectedColor == color,
+                                        ),
                                       ),
                                     ),
-                                  ),
                                 ],
                               ),
                               Row(
                                 children: [
-                                  Text(
+                                  const Text(
                                     "Kích cỡ:",
                                     style: TextStyle(fontFamily: "TenorSans"),
                                   ),
-                                  SizedBox(width: 5),
-                                  ...widget.product.kichThuoc.map(
-                                    (size) => GestureDetector(
-                                      onTap:
-                                          () => setState(() {
-                                            selectedSize = size;
-                                          }),
-                                      child: SizeButton(
-                                        size,
-                                        isSelected: selectedSize == size,
+                                  const SizedBox(width: 5),
+                                  if (availableSizes.isEmpty)
+                                    const Text(
+                                      "Không có size",
+                                      style: TextStyle(color: Colors.grey),
+                                    )
+                                  else
+                                    ...availableSizes.map(
+                                      (size) => GestureDetector(
+                                        onTap:
+                                            () => setState(
+                                              () => selectedSize = size,
+                                            ),
+                                        child: SizeButton(
+                                          size,
+                                          isSelected: selectedSize == size,
+                                        ),
                                       ),
                                     ),
-                                  ),
                                 ],
                               ),
                             ],

@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:the4m_app/screens/cart_screen.dart';
-import 'package:the4m_app/screens/payment_screen.dart';
 import 'package:the4m_app/services/location_service.dart';
-import 'package:the4m_app/utils/smoothPushReplacement.dart';
 import 'package:the4m_app/widgets/devider.dart';
 import 'package:the4m_app/widgets/header.dart';
 

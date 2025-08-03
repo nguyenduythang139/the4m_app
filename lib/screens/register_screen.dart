@@ -2,7 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:the4m_app/utils/smoothPushReplacement.dart';
-import 'login_screen.dart'; // Trang đăng nhập
+import 'login_screen.dart';
+import 'package:the4m_app/services/location_service.dart';
 
 class RegisterScreen extends StatefulWidget {
   @override
@@ -85,6 +86,33 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 
+  List<dynamic> provinces = [];
+  List<dynamic> wards = [];
+
+  @override
+  void initState() {
+    super.initState();
+    loadProvinces();
+  }
+
+  void loadProvinces() async {
+    provinces = await LocationService.fetchProvinces();
+    print(provinces);
+    setState(() {});
+  }
+
+  void loadWards(int provinceCode) async {
+    final districts = await LocationService.fetchDistricts(provinceCode);
+    List<dynamic> allWards = [];
+    for (var district in districts) {
+      final districtWards = await LocationService.fetchWards(district['code']);
+      allWards.addAll(districtWards);
+    }
+    setState(() {
+      wards = allWards;
+    });
+  }
+
   // Hàm tạo dropdown
   Widget _buildDropdown<T>({
     required String label,
@@ -100,6 +128,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         Text(label, style: TextStyle(fontSize: 18, fontFamily: 'Noto Serif')),
         const SizedBox(height: 6),
         DropdownButtonFormField<T>(
+          dropdownColor: Colors.white,
           value: value,
           isExpanded: true,
           decoration: InputDecoration(
@@ -279,22 +308,37 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   hint: 'Nhập số nhà, tên đường',
                   icon: Icons.home,
                 ),
-                _buildDropdown(
-                  label: 'Phường/ Xã',
-                  hint: 'Chọn phường/ xã',
-                  value: _selectedWard,
-                  items: ['Phường A', 'Phường B'],
-                  onChanged: (value) => setState(() => _selectedWard = value),
-                  icon: Icons.location_on,
-                ),
-                _buildDropdown(
+                _buildDropdown<String>(
                   label: 'Tỉnh/ Thành Phố',
                   hint: 'Chọn tỉnh/ thành phố',
                   value: _selectedProvince,
-                  items: ['Hồ Chí Minh', 'Hà Nội', 'Đà Nẵng'],
-                  onChanged:
-                      (value) => setState(() => _selectedProvince = value),
+                  items:
+                      provinces
+                          .map<String>((p) => p['name'] as String)
+                          .toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedProvince = value;
+                      _selectedWard = null;
+                      final selected = provinces.firstWhere(
+                        (p) => p['name'] == value,
+                      );
+                      loadWards(selected['code']);
+                    });
+                  },
                   icon: Icons.location_city,
+                ),
+                _buildDropdown<String>(
+                  label: 'Phường/ Xã',
+                  hint: 'Chọn phường/ xã',
+                  value: _selectedWard,
+                  items: wards.map<String>((w) => w['name'] as String).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedWard = value;
+                    });
+                  },
+                  icon: Icons.location_on,
                 ),
                 // Mật khẩu
                 _buildTextField(

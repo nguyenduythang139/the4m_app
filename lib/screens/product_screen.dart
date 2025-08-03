@@ -8,7 +8,6 @@ import 'package:the4m_app/widgets/drawer.dart';
 import 'package:the4m_app/widgets/footer.dart';
 import 'package:the4m_app/widgets/header.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ProductScreen extends StatefulWidget {
   const ProductScreen({super.key});
@@ -69,8 +68,6 @@ class _ProductScreenState extends State<ProductScreen> {
         'giaMoi': product.giaMoi,
         'giaCu': product.giaCu,
         'moTa': product.moTa,
-        'mauSac': product.mauSac,
-        'kichThuoc': product.kichThuoc,
         'loaiSP': product.loaiSP,
         'thuongHieu': product.thuongHieu,
         'chatLieu': product.chatLieu,

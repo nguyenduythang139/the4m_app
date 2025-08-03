@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:the4m_app/screens/product_detail_screen.dart';
@@ -15,7 +14,6 @@ import 'package:the4m_app/widgets/bottom_navigation.dart';
 import 'package:the4m_app/widgets/header.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:the4m_app/models/product.dart';
-import 'package:the4m_app/widgets/cart_notify.dart';
 //models
 
 class HomeScreen extends StatefulWidget {
@@ -156,7 +154,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               .where(
                                 'ngayNhapSP',
                                 isGreaterThanOrEqualTo: Timestamp.fromDate(
-                                  DateTime.now().subtract(Duration(days: 7)),
+                                  DateTime.now().subtract(Duration(days: 100)),
                                 ),
                               )
                               .orderBy('ngayNhapSP', descending: true)
