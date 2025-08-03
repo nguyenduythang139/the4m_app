@@ -51,36 +51,6 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
     fetchFavorites();
   }
 
-  // Future<void> fetchFavorites() async {
-  //   final user = FirebaseAuth.instance.currentUser;
-  //   if (user == null) return;
-
-  //   final snapshot =
-  //       await FirebaseFirestore.instance
-  //           .collection('TaiKhoan')
-  //           .doc(user.uid)
-  //           .collection('YeuThich')
-  //           .get();
-
-  //   setState(() {
-  //     likedProducts =
-  //         snapshot.docs.map((doc) {
-  //           final data = doc.data();
-  //           return {
-  //             'id': doc.id,
-  //             'image':
-  //                 (data['hinhAnh'] is List && data['hinhAnh'].isNotEmpty)
-  //                     ? data['hinhAnh'][0]
-  //                     : 'assets/images/placeholder.png',
-  //             'name': data['tenSP'],
-  //             'desc': data['moTa'] ?? '',
-  //             'price': data['giaMoi'],
-  //             'liked': true,
-  //           };
-  //         }).toList();
-  //   });
-  // }
-
   List<Product> likedProducts = [];
 
   Future<void> fetchFavorites() async {
@@ -121,22 +91,6 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
           }).toList();
     });
   }
-
-  // Future<void> removeFromFavorites(String docId, int index) async {
-  //   final user = FirebaseAuth.instance.currentUser;
-  //   if (user == null) return;
-
-  //   await FirebaseFirestore.instance
-  //       .collection('TaiKhoan')
-  //       .doc(user.uid)
-  //       .collection('YeuThich')
-  //       .doc(docId)
-  //       .delete();
-
-  //   setState(() {
-  //     likedProducts.removeAt(index);
-  //   });
-  // }
 
   Future<void> removeFromFavorites(String maSP, int index) async {
     final user = FirebaseAuth.instance.currentUser;
