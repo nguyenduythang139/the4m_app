@@ -53,7 +53,10 @@ class _CustomDrawerState extends State<CustomDrawer> {
                       userProvider.hoTen ?? "Đang tải ...",
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
-                    Text(userProvider.email ?? "Đang tải ..."),
+                    ConstrainedBox(
+                      constraints: BoxConstraints(maxWidth: 190),
+                      child: Text(userProvider.email ?? "Đang tải ..."),
+                    ),
                   ],
                 ),
               ],

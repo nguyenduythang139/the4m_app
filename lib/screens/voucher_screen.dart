@@ -1,14 +1,55 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:the4m_app/models/voucher.dart';
 import 'package:the4m_app/widgets/voucher_item.dart';
 
 class VoucherScreen extends StatefulWidget {
-  const VoucherScreen({super.key});
+  final int totalAmount;
+  const VoucherScreen({super.key, required this.totalAmount});
 
   @override
   State<VoucherScreen> createState() => _VoucherScreenState();
 }
 
 class _VoucherScreenState extends State<VoucherScreen> {
+  List<Voucher> voucherList = [];
+
+  @override
+  void initState() {
+    super.initState();
+    fetchVouchers();
+  }
+
+  Future<void> fetchVouchers() async {
+    final voucherRef =
+        await FirebaseFirestore.instance.collection('Voucher').get();
+
+    final now = DateTime.now();
+
+    final voucherDoc =
+        voucherRef.docs
+            .map((doc) {
+              return Voucher.fromFirestore(doc.data(), doc.id);
+            })
+            .where(
+              (voucher) =>
+                  (voucher.ngayBatDau.isBefore(now) ||
+                      voucher.ngayBatDau.isAtSameMomentAs(now)) &&
+                  (voucher.ngayKetThuc.isAfter(now) ||
+                      voucher.ngayKetThuc.isAtSameMomentAs(now)) &&
+                  voucher.giaTriDieuKien <= widget.totalAmount,
+            )
+            .toList();
+
+    setState(() {
+      voucherList = voucherDoc;
+    });
+  }
+
+  void onVoucherSelected(Voucher voucher) {
+    Navigator.pop(context, voucher);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -41,7 +82,7 @@ class _VoucherScreenState extends State<VoucherScreen> {
                       ),
                       SizedBox(width: 10),
                       Text(
-                        "(4)",
+                        "(${voucherList.length})",
                         style: TextStyle(
                           color: Colors.orange,
                           fontFamily: "NotoSerif_2",
@@ -69,8 +110,15 @@ class _VoucherScreenState extends State<VoucherScreen> {
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: SingleChildScrollView(
-                  child: Column(children: [VoucherItem()]),
+                child: ListView.builder(
+                  itemCount: voucherList.length,
+                  itemBuilder: (context, index) {
+                    final voucher = voucherList[index];
+                    return VoucherItem(
+                      voucher: voucher,
+                      onSelect: () => onVoucherSelected(voucher),
+                    );
+                  },
                 ),
               ),
             ),

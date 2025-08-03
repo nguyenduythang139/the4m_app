@@ -1,15 +1,85 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:the4m_app/models/cart_model.dart';
+import 'package:the4m_app/models/cart.dart';
 import 'package:intl/intl.dart';
 
-class CartItem extends StatelessWidget {
+class CartItem extends StatefulWidget {
   final Cart cart;
+  final VoidCallback onRemove;
+  final void Function(int) onQuantityChange;
 
-  const CartItem({super.key, required this.cart});
+  const CartItem({
+    super.key,
+    required this.cart,
+    required this.onRemove,
+    required this.onQuantityChange,
+  });
+
+  @override
+  State<CartItem> createState() => _CartItemState();
+}
+
+class _CartItemState extends State<CartItem> {
+  late int soLuong;
+
+  @override
+  void initState() {
+    super.initState();
+    soLuong = widget.cart.soLuong;
+  }
 
   String formatCurrency(int amount) {
     final formatter = NumberFormat.currency(locale: 'vi_VN', symbol: 'VNĐ');
     return formatter.format(amount);
+  }
+
+  Future<void> removeFromCart(BuildContext context) async {
+    try {
+      final cartRef = FirebaseFirestore.instance
+          .collection('TaiKhoan')
+          .doc(FirebaseAuth.instance.currentUser!.uid)
+          .collection('GioHang')
+          .doc(widget.cart.id);
+      await cartRef.delete();
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Đã xóa sản phẩm khỏi giỏ hàng")));
+
+      widget.onRemove();
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Xóa thất bại: $e")));
+    }
+  }
+
+  Future<void> updateQuantity(BuildContext context, int newQuantity) async {
+    if (newQuantity <= 0) {
+      removeFromCart(context);
+      return;
+    }
+
+    try {
+      final cartRef = FirebaseFirestore.instance
+          .collection('TaiKhoan')
+          .doc(FirebaseAuth.instance.currentUser!.uid)
+          .collection('GioHang')
+          .doc(widget.cart.id);
+
+      await cartRef.update({'soLuong': newQuantity});
+
+      setState(() {
+        soLuong = newQuantity;
+      });
+
+      widget.onQuantityChange(newQuantity);
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Cập nhật số lượng thất bại: $e")));
+    }
   }
 
   @override
@@ -28,7 +98,10 @@ class CartItem extends StatelessWidget {
                   children: [
                     SizedBox(
                       width: 95,
-                      child: Image.asset(cart.productImage, fit: BoxFit.cover),
+                      child: Image.asset(
+                        widget.cart.hinhAnh,
+                        fit: BoxFit.cover,
+                      ),
                     ),
                     Padding(
                       padding: const EdgeInsets.only(left: 10),
@@ -38,7 +111,7 @@ class CartItem extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              cart.productName,
+                              widget.cart.tenSP,
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.bold,
@@ -47,7 +120,7 @@ class CartItem extends StatelessWidget {
                             ),
                             SizedBox(height: 6),
                             Text(
-                              "Màu sắc: " + cart.productColor,
+                              "Màu sắc: " + widget.cart.mauSac,
                               style: TextStyle(
                                 color: Color(0xff333333),
                                 fontFamily: "NotoSerif_2",
@@ -55,7 +128,7 @@ class CartItem extends StatelessWidget {
                             ),
                             SizedBox(height: 3),
                             Text(
-                              "Kích cỡ: Size " + cart.productSize,
+                              "Kích cỡ: Size " + widget.cart.kichThuoc,
                               style: TextStyle(
                                 color: Color(0xff333333),
                                 fontFamily: "NotoSerif_2",
@@ -63,7 +136,7 @@ class CartItem extends StatelessWidget {
                             ),
                             SizedBox(height: 6),
                             Text(
-                              formatCurrency(cart.productPrice).toString(),
+                              formatCurrency(widget.cart.gia).toString(),
                               style: TextStyle(
                                 color: Color(0xff333333),
                                 fontFamily: "NotoSerif_2",
@@ -84,7 +157,11 @@ class CartItem extends StatelessWidget {
                                     shape: BoxShape.circle,
                                   ),
                                   child: IconButton(
-                                    onPressed: () {},
+                                    onPressed:
+                                        () => updateQuantity(
+                                          context,
+                                          soLuong - 1,
+                                        ),
                                     icon: Icon(Icons.remove, size: 16),
                                     padding: EdgeInsets.zero,
                                     constraints: BoxConstraints(),
@@ -92,7 +169,7 @@ class CartItem extends StatelessWidget {
                                   ),
                                 ),
                                 SizedBox(width: 10),
-                                Text(cart.productQuantity.toString()),
+                                Text(soLuong.toString()),
                                 SizedBox(width: 10),
                                 Container(
                                   width: 26,
@@ -105,7 +182,11 @@ class CartItem extends StatelessWidget {
                                     shape: BoxShape.circle,
                                   ),
                                   child: IconButton(
-                                    onPressed: () {},
+                                    onPressed:
+                                        () => updateQuantity(
+                                          context,
+                                          soLuong + 1,
+                                        ),
                                     icon: Icon(Icons.add, size: 16),
                                     padding: EdgeInsets.zero,
                                     constraints: BoxConstraints(),
@@ -122,21 +203,24 @@ class CartItem extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Container(
-                          width: 46,
-                          height: 28,
-                          decoration: BoxDecoration(
-                            color: Colors.orange,
-                            borderRadius: BorderRadius.circular(5),
-                          ),
-                          child: Center(
-                            child: Text(
-                              "Xóa",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 12,
-                                fontFamily: "TenorSans",
-                                fontWeight: FontWeight.bold,
+                        GestureDetector(
+                          onTap: () => removeFromCart(context),
+                          child: Container(
+                            width: 46,
+                            height: 28,
+                            decoration: BoxDecoration(
+                              color: Colors.orange,
+                              borderRadius: BorderRadius.circular(5),
+                            ),
+                            child: Center(
+                              child: Text(
+                                "Xóa",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                  fontFamily: "TenorSans",
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
                           ),
@@ -161,7 +245,7 @@ class CartItem extends StatelessWidget {
                     ),
                     Text(
                       formatCurrency(
-                        cart.productPrice * cart.productQuantity,
+                        widget.cart.gia * widget.cart.soLuong,
                       ).toString(),
                       style: TextStyle(
                         fontSize: 16,
