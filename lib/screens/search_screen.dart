@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:the4m_app/models/product.dart';
 import 'package:the4m_app/screens/product_detail_screen.dart';
@@ -20,7 +21,7 @@ class _SearchScreenState extends State<SearchScreen> {
     'Nón kết',
     'Quần short',
     'Áo thun cổ tròn',
-    'Áo chống tia UV',
+    'Áo khoác',
   ];
 
   final TextEditingController _searchController = TextEditingController();
@@ -103,6 +104,11 @@ class _SearchScreenState extends State<SearchScreen> {
   void _removeSearchItem(String item) async {
     setState(() => recentSearches.remove(item));
     await _saveRecentSearches();
+  }
+
+  String formatCurrency(int amount) {
+    final formatter = NumberFormat.currency(locale: 'vi_VN', symbol: 'VNĐ');
+    return formatter.format(amount);
   }
 
   Widget _buildSectionTitle(String title) => Padding(
@@ -215,7 +221,7 @@ class _SearchScreenState extends State<SearchScreen> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        '${productData['giaMoi'] ?? '0'} VND',
+                        '${formatCurrency(productData['giaMoi'])}',
                         style: const TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w400,
