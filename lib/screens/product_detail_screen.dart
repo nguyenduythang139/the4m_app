@@ -162,6 +162,11 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final now = DateTime.now();
+    final earliest = now.add(Duration(days: 3));
+    final latest = now.add(Duration(days: 5));
+    final dateFormat = DateFormat('dd/MM/yyyy');
+
     final reviews = getSampleReviews();
     return Scaffold(
       backgroundColor: Colors.white,
@@ -485,7 +490,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                                     ),
                                     SizedBox(height: 4),
                                     Text(
-                                      "08/06/2025 - 12/06/2025.",
+                                      "${dateFormat.format(earliest)} - ${dateFormat.format(latest)}",
                                       style: TextStyle(fontFamily: "TenorSans"),
                                     ),
                                   ],
@@ -726,14 +731,12 @@ Widget ColorButton(Color color, {bool isSelected = false}) {
 Widget SizeButton(String size, {bool isSelected = false}) {
   return Container(
     margin: const EdgeInsets.only(right: 10),
-    width: 26,
-    height: 26,
-    alignment: Alignment.center,
+    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
     decoration: BoxDecoration(
-      color: isSelected ? Color(0xff333333) : Colors.white,
-      shape: BoxShape.circle,
+      color: isSelected ? const Color(0xff333333) : Colors.white,
+      borderRadius: BorderRadius.circular(50),
       border: Border.all(
-        color: isSelected ? Color(0xff333333) : Color(0xff555555),
+        color: isSelected ? const Color(0xff333333) : const Color(0xff555555),
       ),
     ),
     child: Text(
