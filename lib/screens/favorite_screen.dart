@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:the4m_app/models/cart.dart';
+import 'package:the4m_app/models/product.dart';
 import 'package:the4m_app/screens/product_detail_screen.dart';
 import 'package:the4m_app/utils/smoothPushReplacement.dart';
 import 'package:the4m_app/widgets/bottom_navigation.dart';
+import 'package:the4m_app/widgets/cart_notify.dart';
 import 'package:the4m_app/widgets/devider.dart';
 import 'package:the4m_app/widgets/drawer.dart';
 import 'package:the4m_app/widgets/header.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class FavoriteScreen extends StatefulWidget {
   const FavoriteScreen({super.key});
@@ -19,48 +24,94 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
   int currentIndex = 3;
   int selectedIndex = 3;
 
-  String formatCurrency(int amount) {
+  String formatCurrency(dynamic amount) {
     final formatter = NumberFormat.currency(locale: 'vi_VN', symbol: 'VNĐ');
-    return formatter.format(amount);
+
+    if (amount == null) return formatter.format(0);
+
+    if (amount is int || amount is double) {
+      return formatter.format(amount);
+    }
+
+    // Nếu là String có thể chuyển sang số
+    if (amount is String) {
+      final parsed = num.tryParse(amount);
+      return formatter.format(parsed ?? 0);
+    }
+
+    // Nếu kiểu không hỗ trợ, trả 0
+    return formatter.format(0);
   }
 
-  List<Map<String, dynamic>> likedProducts = [
-    {
-      'image': 'lib/assets/images/product_1.png',
-      'name': 'Áo thun dry cổ tròn',
-      'desc': 'Chất vải thoáng mát',
-      'price': 300000,
-      'liked': true,
-    },
-    {
-      'image': 'lib/assets/images/product_2.png',
-      'name': 'Áo thun TS-2',
-      'desc': 'Chất vải thoáng mát',
-      'price': 250000,
-      'liked': true,
-    },
-    {
-      'image': 'lib/assets/images/product_3.png',
-      'name': 'Áo thun cổ tròn dài tay',
-      'desc': 'Chất vải thoáng mát',
-      'price': 390000,
-      'liked': true,
-    },
-    {
-      'image': 'lib/assets/images/product_4.png',
-      'name': 'Áo thun TS-3',
-      'desc': 'Chất vải thoáng mát',
-      'price': 250000,
-      'liked': true,
-    },
-    {
-      'image': 'lib/assets/images/product_5.png',
-      'name': 'Áo thun TS-4',
-      'desc': 'Chất vải thoáng mát',
-      'price': 400000,
-      'liked': true,
-    },
-  ];
+  // List<Map<String, dynamic>> likedProducts = [];
+
+  @override
+  void initState() {
+    super.initState();
+    fetchFavorites();
+  }
+
+  List<Product> likedProducts = [];
+
+  Future<void> fetchFavorites() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    final snapshot =
+        await FirebaseFirestore.instance
+            .collection('TaiKhoan')
+            .doc(user.uid)
+            .collection('YeuThich')
+            .get();
+
+    setState(() {
+      likedProducts =
+          snapshot.docs.map((doc) {
+            final data = doc.data();
+            return Product(
+              maSP: data['maSP'],
+              tenSP: data['tenSP'],
+              giaCu: data['giaCu'],
+              giaMoi: data['giaMoi'],
+              moTa: data['moTa'],
+              hinhAnh: List<String>.from(data['hinhAnh']),
+              mauSac: List<String>.from(data['mauSac']),
+              kichThuoc: List<String>.from(data['kichThuoc']),
+              loaiSP: data['loaiSP'],
+              thuongHieu: data['thuongHieu'],
+              chatLieu: data['chatLieu'],
+              baoQuan: data['baoQuan'],
+              thuocTay: data['thuocTay'],
+              giatKho: data['giatKho'],
+              sayKho: data['sayKho'],
+              nhietDoUi: data['nhietDoUi'],
+              loaiSPTQ: data['loaiSPTQ'],
+              liked: true,
+            );
+          }).toList();
+    });
+  }
+
+  Future<void> removeFromFavorites(String maSP, int index) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    final querySnapshot =
+        await FirebaseFirestore.instance
+            .collection('TaiKhoan')
+            .doc(user.uid)
+            .collection('YeuThich')
+            .where('maSP', isEqualTo: maSP)
+            .get();
+
+    for (var doc in querySnapshot.docs) {
+      await doc.reference.delete();
+    }
+
+    setState(() {
+      likedProducts.removeAt(index);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -181,7 +232,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                     padding: const EdgeInsets.all(16),
                     itemCount: likedProducts.length,
                     itemBuilder: (context, index) {
-                      final item = likedProducts[index];
+                      final product = likedProducts[index];
                       return Container(
                         margin: const EdgeInsets.only(bottom: 16),
                         decoration: BoxDecoration(
@@ -201,8 +252,11 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                                     borderRadius: BorderRadius.circular(10),
                                   ),
                                   child: Image.asset(
-                                    item['image'],
+                                    product.hinhAnh[0],
                                     fit: BoxFit.cover,
+                                    errorBuilder:
+                                        (context, error, stackTrace) =>
+                                            Icon(Icons.image_not_supported),
                                   ),
                                 ),
                               ),
@@ -217,7 +271,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        item['name'],
+                                        product.tenSP,
                                         style: const TextStyle(
                                           fontSize: 14,
                                           fontWeight: FontWeight.bold,
@@ -226,7 +280,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                                       ),
                                       const SizedBox(height: 2),
                                       Text(
-                                        item['desc'],
+                                        product.moTa,
                                         style: const TextStyle(
                                           fontSize: 12,
                                           color: Colors.black54,
@@ -235,7 +289,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                                       ),
                                       const SizedBox(height: 2),
                                       Text(
-                                        "${formatCurrency(item['price'])}",
+                                        "${formatCurrency(product.giaMoi)}",
                                         style: const TextStyle(
                                           color: Colors.redAccent,
                                           fontSize: 14,
@@ -244,7 +298,18 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                                       ),
                                       const SizedBox(height: 6),
                                       ElevatedButton.icon(
-                                        onPressed: () {},
+                                        onPressed: () {
+                                          Navigator.pushReplacement(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder:
+                                                  (context) =>
+                                                      ProductDetailScreen(
+                                                        product: product,
+                                                      ),
+                                            ),
+                                          );
+                                        },
                                         icon: const Icon(
                                           Icons.add_shopping_cart,
                                           size: 16,
@@ -279,18 +344,50 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                                 child: Container(
                                   alignment: Alignment.topCenter,
                                   child: GestureDetector(
-                                    onTap: () {
-                                      setState(() {
-                                        likedProducts[index]['liked'] =
-                                            !likedProducts[index]['liked'];
-                                      });
+                                    onTap: () async {
+                                      final confirm = await showDialog<bool>(
+                                        context: context,
+                                        builder:
+                                            (context) => AlertDialog(
+                                              title: Text(
+                                                'Xóa khỏi yêu thích?',
+                                              ),
+                                              content: Text(
+                                                'Bạn có chắc chắn muốn xóa sản phẩm này khỏi danh sách yêu thích không?',
+                                              ),
+                                              actions: [
+                                                TextButton(
+                                                  onPressed:
+                                                      () => Navigator.pop(
+                                                        context,
+                                                        false,
+                                                      ),
+                                                  child: Text('Hủy'),
+                                                ),
+                                                TextButton(
+                                                  onPressed:
+                                                      () => Navigator.pop(
+                                                        context,
+                                                        true,
+                                                      ),
+                                                  child: Text('Xóa'),
+                                                ),
+                                              ],
+                                            ),
+                                      );
+                                      if (confirm == true) {
+                                        removeFromFavorites(
+                                          product.maSP,
+                                          index,
+                                        );
+                                      }
                                     },
                                     child: Icon(
-                                      likedProducts[index]['liked']
+                                      product.liked
                                           ? Icons.favorite
                                           : Icons.favorite_border,
                                       color:
-                                          likedProducts[index]['liked']
+                                          product.liked
                                               ? Colors.orange
                                               : Colors.orange,
                                     ),

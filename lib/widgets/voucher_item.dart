@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:the4m_app/models/voucher.dart';
 
 class VoucherItem extends StatelessWidget {
-  const VoucherItem({super.key});
+  final Voucher voucher;
+  final VoidCallback onSelect;
+  const VoucherItem({super.key, required this.voucher, required this.onSelect});
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +30,7 @@ class VoucherItem extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          "MÃ GIẢM GIÁ CHÀO MỪNG - 06/2025",
+                          voucher.tenVoucher,
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w500,
@@ -35,21 +38,21 @@ class VoucherItem extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          "Ngày bắt đầu:  01/06/2025 12:00 PM ICT",
+                          "Ngày bắt đầu:  ${voucher.ngayBatDau}",
                           style: TextStyle(
                             fontSize: 13,
                             fontFamily: "NotoSerif_2",
                           ),
                         ),
                         Text(
-                          "Ngày kết thúc: 30/06/2025 12:00 PM ICT",
+                          "Ngày kết thúc: ${voucher.ngayKetThuc}",
                           style: TextStyle(
                             fontSize: 13,
                             fontFamily: "NotoSerif_2",
                           ),
                         ),
                         Text(
-                          "Giá trị voucher: 100.000 VNĐ",
+                          "Giá trị voucher: ${voucher.giaTri} VNĐ",
                           style: TextStyle(
                             fontSize: 13,
                             fontFamily: "NotoSerif_2",
@@ -66,15 +69,18 @@ class VoucherItem extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              Container(
-                padding: EdgeInsets.symmetric(vertical: 6, horizontal: 10),
-                decoration: BoxDecoration(
-                  border: Border.all(width: 1, color: Colors.black),
-                  borderRadius: BorderRadius.circular(3),
-                ),
-                child: Text(
-                  "CHỌN",
-                  style: TextStyle(fontSize: 12, fontFamily: "NotoSerif_2"),
+              GestureDetector(
+                onTap: onSelect,
+                child: Container(
+                  padding: EdgeInsets.symmetric(vertical: 6, horizontal: 10),
+                  decoration: BoxDecoration(
+                    border: Border.all(width: 1, color: Colors.black),
+                    borderRadius: BorderRadius.circular(3),
+                  ),
+                  child: Text(
+                    "CHỌN",
+                    style: TextStyle(fontSize: 12, fontFamily: "NotoSerif_2"),
+                  ),
                 ),
               ),
               SizedBox(width: 20),

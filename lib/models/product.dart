@@ -16,6 +16,7 @@ class Product {
   String sayKho;
   String nhietDoUi;
   final String loaiSPTQ;
+  bool liked;
 
   Product({
     required this.maSP,
@@ -35,6 +36,7 @@ class Product {
     required this.sayKho,
     required this.nhietDoUi,
     required this.loaiSPTQ,
+    this.liked = false,
   });
 
   factory Product.fromMap(Map<String, dynamic> map, String id) {
@@ -56,6 +58,7 @@ class Product {
       sayKho: map['sayKho'],
       nhietDoUi: map['nhietDoUi'],
       loaiSPTQ: map['loaiSPTQ'] ?? '',
+      liked: false,
     );
   }
 }

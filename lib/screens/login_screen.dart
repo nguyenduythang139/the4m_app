@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:the4m_app/models/cart.dart';
 import 'package:the4m_app/models/user_provider.dart';
-import 'package:the4m_app/screens/forgotpassword_screen';
+import 'package:the4m_app/screens/forgotpassword_screen.dart';
 import 'dart:async';
 import 'package:the4m_app/screens/home_screen.dart';
 import 'package:the4m_app/screens/register_screen.dart';

@@ -7,6 +7,8 @@ import 'package:the4m_app/widgets/bottom_navigation.dart';
 import 'package:the4m_app/widgets/drawer.dart';
 import 'package:the4m_app/widgets/footer.dart';
 import 'package:the4m_app/widgets/header.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ProductScreen extends StatefulWidget {
   const ProductScreen({super.key});
@@ -46,11 +48,66 @@ class _ProductScreenState extends State<ProductScreen> {
     return formatter.format(amount);
   }
 
+  Future<void> addToFavorites(Product product) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    final yeuThichRef = FirebaseFirestore.instance
+        .collection('TaiKhoan')
+        .doc(user.uid)
+        .collection('YeuThich');
+
+    // Kiểm tra nếu sản phẩm đã có
+    final existing =
+        await yeuThichRef.where('maSP', isEqualTo: product.maSP).get();
+
+    if (existing.docs.isEmpty) {
+      await yeuThichRef.add({
+        'maSP': product.maSP,
+        'tenSP': product.tenSP,
+        'hinhAnh': product.hinhAnh,
+        'giaMoi': product.giaMoi,
+        'giaCu': product.giaCu,
+        'moTa': product.moTa,
+        'mauSac': product.mauSac,
+        'kichThuoc': product.kichThuoc,
+        'loaiSP': product.loaiSP,
+        'thuongHieu': product.thuongHieu,
+        'chatLieu': product.chatLieu,
+        'baoQuan': product.baoQuan,
+        'thuocTay': product.thuocTay,
+        'giatKho': product.giatKho,
+        'sayKho': product.sayKho,
+        'nhietDoUi': product.nhietDoUi,
+        'loaiSPTQ': product.loaiSPTQ,
+      });
+    }
+  }
+
+  Future<void> loadFavorites() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    final snapshot =
+        await FirebaseFirestore.instance
+            .collection('TaiKhoan')
+            .doc(user.uid)
+            .collection('YeuThich')
+            .get();
+
+    final favorites = snapshot.docs.map((doc) => doc['maSP'] as String).toSet();
+
+    setState(() {
+      favoriteProductIds = favorites;
+    });
+  }
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       fetchPageData();
+      loadFavorites();
     });
   }
 
@@ -271,14 +328,41 @@ class _ProductScreenState extends State<ProductScreen> {
               top: 8,
               right: 8,
               child: GestureDetector(
-                onTap: () {
+                onTap: () async {
+                  final isAlreadyFavorite = favoriteProductIds.contains(
+                    product.maSP,
+                  );
+
                   setState(() {
-                    if (favoriteProductIds.contains(product.maSP)) {
+                    if (isAlreadyFavorite) {
                       favoriteProductIds.remove(product.maSP);
                     } else {
                       favoriteProductIds.add(product.maSP);
                     }
                   });
+
+                  if (!isAlreadyFavorite) {
+                    await addToFavorites(product);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Đã thêm vào yêu thích')),
+                    );
+                  } else {
+                    // Nếu bạn muốn xoá khỏi Firestore luôn khi bỏ yêu thích:
+                    final user = FirebaseAuth.instance.currentUser;
+                    if (user != null) {
+                      final snapshot =
+                          await FirebaseFirestore.instance
+                              .collection('TaiKhoan')
+                              .doc(user.uid)
+                              .collection('YeuThich')
+                              .where('maSP', isEqualTo: product.maSP)
+                              .get();
+
+                      for (var doc in snapshot.docs) {
+                        await doc.reference.delete();
+                      }
+                    }
+                  }
                 },
                 child: Icon(
                   favoriteProductIds.contains(product.maSP)
