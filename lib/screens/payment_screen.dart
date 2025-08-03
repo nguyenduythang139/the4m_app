@@ -1,22 +1,50 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:the4m_app/models/cart.dart';
 import 'package:the4m_app/models/delivery_method_model.dart';
 import 'package:the4m_app/models/payment_method_model.dart';
+import 'package:the4m_app/models/voucher.dart';
+import 'package:the4m_app/screens/MomoWebViewScreen.dart';
 import 'package:the4m_app/screens/add_address_screen.dart';
 import 'package:the4m_app/screens/cart_screen.dart';
 import 'package:the4m_app/screens/complete_order_screen.dart';
+import 'package:the4m_app/screens/vn_pay_payment_page.dart';
 import 'package:the4m_app/screens/voucher_screen.dart';
+import 'package:the4m_app/services/MomoPaymentService.dart';
 import 'package:the4m_app/utils/smoothPushReplacement.dart';
 import 'package:the4m_app/widgets/devider.dart';
 import 'package:the4m_app/widgets/header.dart';
 
 class PaymentScreen extends StatefulWidget {
-  const PaymentScreen({super.key});
+  final List<Cart> cartList;
+  final Voucher? selectedVoucher;
+  final int totalAmount;
+  final int total;
+  final int discount;
+  final int tax;
+  final int quantityProduct;
+
+  const PaymentScreen({
+    super.key,
+    required this.cartList,
+    required this.selectedVoucher,
+    required this.totalAmount,
+    required this.total,
+    required this.discount,
+    required this.tax,
+    required this.quantityProduct,
+  });
 
   @override
   State<PaymentScreen> createState() => _PaymentScreenState();
 }
 
 class _PaymentScreenState extends State<PaymentScreen> {
+  Voucher? _selectedVoucher;
+  int shippingFee = 40000;
+
   final List<DeliveryMethodOption> deliveryMethods = [
     DeliveryMethodOption(name: 'Chuyển phát nhanh', price: '40.000 VNĐ'),
     DeliveryMethodOption(name: 'Giao tiêu chuẩn', price: '20.000 VNĐ'),
@@ -26,8 +54,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
   DeliveryMethodOption? selectedDeliveryMethod;
 
   final List<PaymentMethodOption> paymentMethods = [
+    PaymentMethodOption(name: 'Thanh toán bằng momo'),
     PaymentMethodOption(name: 'Thanh toán tiền mặt'),
-    PaymentMethodOption(name: 'Thanh toán bằng vnpay'),
   ];
 
   PaymentMethodOption? selectedPaymentMethod;
@@ -37,6 +65,72 @@ class _PaymentScreenState extends State<PaymentScreen> {
     super.initState();
     selectedDeliveryMethod = deliveryMethods.first;
     selectedPaymentMethod = paymentMethods.first;
+    _selectedVoucher = widget.selectedVoucher;
+  }
+
+  String formatCurrency(int amount) {
+    final formatter = NumberFormat.currency(locale: 'vi_VN', symbol: 'VNĐ');
+    return formatter.format(amount);
+  }
+
+  String? hoTen;
+  String? diaChi;
+  String? soDienThoai;
+  String? thanhPho;
+  String? phuong;
+
+  Future<void> saveOrder({
+    required List<Cart> cartList,
+    required int tongSoLuong,
+    required int tongTien,
+    required int phiGiaoHang,
+    required int thanhTien,
+    required String? maVoucher,
+    required String hoTen,
+    required String soDienThoai,
+    required String diaChi,
+    required String phuong,
+    required String thanhPho,
+  }) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    final maDH = "DH_${DateTime.now().millisecondsSinceEpoch}";
+
+    final productList =
+        cartList
+            .map(
+              (cart) => {
+                "maSP": cart.maSP,
+                "tenSP": cart.tenSP,
+                "gia": cart.gia,
+                "hinhAnh": cart.hinhAnh,
+                "soLuong": cart.soLuong,
+                "kichThuoc": cart.kichThuoc,
+                "mauSac": cart.mauSac,
+              },
+            )
+            .toList();
+
+    await FirebaseFirestore.instance.collection('DonHang').doc(maDH).set({
+      "maDH": maDH,
+      "maKH": user.uid,
+      "tongSoLuong": tongSoLuong,
+      "tongTien": tongTien,
+      "phiGiaoHang": phiGiaoHang,
+      "thanhTien": thanhTien,
+      "maVoucher": maVoucher,
+      "trangThai": "Đang giao",
+      "ngayDat": FieldValue.serverTimestamp(),
+      "sanPham": productList,
+      "thongTinGiaoHang": {
+        "hoTen": hoTen,
+        "soDienThoai": soDienThoai,
+        "diaChi": diaChi,
+        "phuong": phuong,
+        "thanhPho": thanhPho,
+      },
+    });
   }
 
   @override
@@ -125,7 +219,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            "ĐỊA CHỈ GIAO HÀNG",
+                            "THÔNG TIN GIAO HÀNG",
                             style: TextStyle(
                               fontFamily: "NotoSerif_2",
                               fontSize: 15,
@@ -134,13 +228,22 @@ class _PaymentScreenState extends State<PaymentScreen> {
                           ),
                           SizedBox(height: 6),
                           GestureDetector(
-                            onTap: () {
-                              Navigator.push(
+                            onTap: () async {
+                              final addressData = await Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => AddAddressScreen(),
                                 ),
                               );
+                              if (addressData != null) {
+                                setState(() {
+                                  hoTen = addressData['hoTen'];
+                                  diaChi = addressData['diaChi'];
+                                  soDienThoai = addressData['soDienThoai'];
+                                  thanhPho = addressData['thanhPho'];
+                                  phuong = addressData['phuong'];
+                                });
+                              }
                             },
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -150,9 +253,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
                                   child: Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
-                                    children: const [
+                                    children: [
                                       Text(
-                                        "Nguyễn Duy Thắng",
+                                        hoTen ?? "Họ tên người nhận:",
                                         style: TextStyle(
                                           fontWeight: FontWeight.bold,
                                           fontFamily: "NotoSerif_2",
@@ -160,7 +263,24 @@ class _PaymentScreenState extends State<PaymentScreen> {
                                       ),
                                       SizedBox(height: 4),
                                       Text(
-                                        "312/8/9, Quang Trung\nPhường 10, Gò Vấp, TP Hồ Chí Minh\n0336971705",
+                                        diaChi ?? "Địa chỉ:",
+                                        style: TextStyle(
+                                          fontSize: 13,
+                                          fontFamily: "NotoSerif_2",
+                                          color: Color(0xff555555),
+                                        ),
+                                      ),
+                                      Text(
+                                        "$phuong, $thanhPho" ??
+                                            "Phường - Thành phố:",
+                                        style: TextStyle(
+                                          fontSize: 13,
+                                          fontFamily: "NotoSerif_2",
+                                          color: Color(0xff555555),
+                                        ),
+                                      ),
+                                      Text(
+                                        soDienThoai ?? "Số điện thoại:",
                                         style: TextStyle(
                                           fontSize: 13,
                                           fontFamily: "NotoSerif_2",
@@ -219,6 +339,13 @@ class _PaymentScreenState extends State<PaymentScreen> {
                             onChanged: (value) {
                               setState(() {
                                 selectedDeliveryMethod = value!;
+                                if (value.name == "Chuyển phát nhanh") {
+                                  shippingFee = 40000;
+                                } else if (value.name == "Giao tiêu chuẩn") {
+                                  shippingFee = 20000;
+                                } else {
+                                  shippingFee = 0;
+                                }
                               });
                             },
                             decoration: InputDecoration(
@@ -354,7 +481,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text("TỔNG ĐƠN HÀNG | 4 SẢN PHẨM"),
+                                  Text(
+                                    "TỔNG ĐƠN HÀNG | ${widget.quantityProduct} SẢN PHẨM",
+                                  ),
                                   SizedBox(height: 6),
                                   Row(
                                     mainAxisAlignment:
@@ -362,7 +491,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                                     children: [
                                       Text("Tổng cộng"),
                                       Text(
-                                        "1.001.000 VNĐ",
+                                        "${formatCurrency(widget.total)}",
                                         style: TextStyle(
                                           fontWeight: FontWeight.bold,
                                         ),
@@ -374,7 +503,11 @@ class _PaymentScreenState extends State<PaymentScreen> {
                                         MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text("Phiếu giảm giá"),
-                                      Text("- 100.000 VNĐ"),
+                                      Text(
+                                        _selectedVoucher != null
+                                            ? "- ${formatCurrency(_selectedVoucher!.giaTri)}"
+                                            : "- 0 VNĐ",
+                                      ),
                                     ],
                                   ),
                                   Row(
@@ -382,7 +515,15 @@ class _PaymentScreenState extends State<PaymentScreen> {
                                         MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text("Đã bao gồm thuế"),
-                                      Text("91.000 VNĐ"),
+                                      Text("${formatCurrency(widget.tax)}"),
+                                    ],
+                                  ),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text("Tiền vận chuyển"),
+                                      Text("${formatCurrency(shippingFee)}"),
                                     ],
                                   ),
                                   Divider(),
@@ -397,7 +538,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                                         ),
                                       ),
                                       Text(
-                                        "941.000 VNĐ",
+                                        "${formatCurrency(widget.totalAmount + shippingFee)}",
                                         style: TextStyle(
                                           color: Colors.orange,
                                           fontWeight: FontWeight.bold,
@@ -411,106 +552,176 @@ class _PaymentScreenState extends State<PaymentScreen> {
                             ),
                           ),
                           // Thong tin phieu giam gia
-                          Container(
-                            padding: EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(12),
-                              boxShadow: [
-                                BoxShadow(color: Colors.black12, blurRadius: 6),
-                              ],
-                            ),
-                            child: Stack(
-                              children: [
-                                Positioned(
-                                  top: 0,
-                                  right: 0,
-                                  child: GestureDetector(
-                                    onTap: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => VoucherScreen(),
-                                        ),
-                                      );
-                                    },
-                                    child: Icon(Icons.edit, size: 18),
+                          _selectedVoucher == null
+                              ? GestureDetector(
+                                onTap: () async {
+                                  final voucher = await Navigator.push<Voucher>(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder:
+                                          (context) => VoucherScreen(
+                                            totalAmount: widget.totalAmount,
+                                          ),
+                                    ),
+                                  );
+                                  if (voucher != null) {
+                                    setState(() {
+                                      _selectedVoucher = voucher;
+                                    });
+                                  }
+                                },
+                                child: Container(
+                                  padding: EdgeInsets.all(12),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(12),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black12,
+                                        blurRadius: 6,
+                                      ),
+                                    ],
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Icon(Icons.confirmation_num),
+                                          SizedBox(width: 10),
+                                          Text("PHIẾU GIẢM GIÁ"),
+                                        ],
+                                      ),
+                                      Icon(Icons.keyboard_arrow_right),
+                                    ],
                                   ),
                                 ),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      children: [
-                                        Icon(Icons.confirmation_num, size: 16),
-                                        SizedBox(width: 6),
-                                        Text(
-                                          "PHIẾU GIẢM GIÁ",
-                                          style: TextStyle(
-                                            fontSize: 12,
-                                            fontFamily: "NotoSerif_2",
-                                          ),
-                                        ),
-                                      ],
+                              )
+                              : Container(
+                                padding: EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(12),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black12,
+                                      blurRadius: 6,
                                     ),
-                                    SizedBox(height: 8),
-                                    Row(
+                                  ],
+                                ),
+                                child: Stack(
+                                  children: [
+                                    Positioned(
+                                      top: 0,
+                                      right: 0,
+                                      child: GestureDetector(
+                                        onTap: () async {
+                                          final voucher =
+                                              await Navigator.push<Voucher>(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder:
+                                                      (
+                                                        context,
+                                                      ) => VoucherScreen(
+                                                        totalAmount:
+                                                            widget.totalAmount,
+                                                      ),
+                                                ),
+                                              );
+                                          if (voucher != null) {
+                                            setState(() {
+                                              _selectedVoucher = voucher;
+                                            });
+                                          }
+                                        },
+                                        child: Icon(Icons.edit, size: 18),
+                                      ),
+                                    ),
+                                    Column(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
-                                        Text(
-                                          "• ",
-                                          style: TextStyle(fontSize: 16),
-                                        ),
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                "Mã Giảm Giá Chào Mừng - 06/2025",
-                                                style: TextStyle(
-                                                  fontFamily: "NotoSerif_2",
-                                                ),
-                                              ),
-                                              SizedBox(height: 4),
-                                              Text(
-                                                "Ngày kết thúc: 30/06/2025 12:00 PM ICT",
-                                                style: TextStyle(
-                                                  fontSize: 12,
-                                                  color: Colors.grey[600],
-                                                  fontFamily: "NotoSerif_2",
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                        SizedBox(width: 8),
-                                        GestureDetector(
-                                          onTap: () {},
-                                          child: Container(
-                                            padding: EdgeInsets.symmetric(
-                                              vertical: 3,
-                                              horizontal: 10,
+                                        Row(
+                                          children: [
+                                            Icon(
+                                              Icons.confirmation_num,
+                                              size: 16,
                                             ),
-                                            decoration: BoxDecoration(
-                                              border: Border.all(
-                                                width: 1,
-                                                color: Colors.black,
+                                            SizedBox(width: 6),
+                                            Text(
+                                              "PHIẾU GIẢM GIÁ",
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                fontFamily: "NotoSerif_2",
                                               ),
-                                              borderRadius:
-                                                  BorderRadius.circular(4),
                                             ),
-                                            child: Text("Xóa"),
-                                          ),
+                                          ],
+                                        ),
+                                        SizedBox(height: 8),
+                                        Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              "• ",
+                                              style: TextStyle(fontSize: 16),
+                                            ),
+                                            Expanded(
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    _selectedVoucher!
+                                                        .tenVoucher,
+                                                    style: TextStyle(
+                                                      fontFamily: "NotoSerif_2",
+                                                    ),
+                                                  ),
+                                                  SizedBox(height: 4),
+                                                  Text(
+                                                    "Ngày kết thúc: ${DateFormat('dd/MM/yyyy hh:mm a').format(_selectedVoucher!.ngayKetThuc)}",
+                                                    style: TextStyle(
+                                                      fontSize: 12,
+                                                      color: Colors.grey[600],
+                                                      fontFamily: "NotoSerif_2",
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            SizedBox(width: 8),
+                                            GestureDetector(
+                                              onTap: () {
+                                                setState(() {
+                                                  _selectedVoucher = null;
+                                                });
+                                              },
+                                              child: Container(
+                                                padding: EdgeInsets.symmetric(
+                                                  vertical: 3,
+                                                  horizontal: 10,
+                                                ),
+                                                decoration: BoxDecoration(
+                                                  border: Border.all(
+                                                    width: 1,
+                                                    color: Colors.black,
+                                                  ),
+                                                  borderRadius:
+                                                      BorderRadius.circular(4),
+                                                ),
+                                                child: Text("Xóa"),
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                       ],
                                     ),
                                   ],
                                 ),
-                              ],
-                            ),
-                          ),
+                              ),
                           SizedBox(height: 20),
                         ],
                       ),
@@ -527,17 +738,61 @@ class _PaymentScreenState extends State<PaymentScreen> {
         child: ElevatedButton.icon(
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.black,
-            padding: EdgeInsets.symmetric(vertical: 16),
-            shape: RoundedRectangleBorder(),
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            shape: const RoundedRectangleBorder(),
           ),
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => CompleteOrderScreen()),
-            );
+          onPressed: () async {
+            if (selectedPaymentMethod?.name == "Thanh toán bằng momo") {
+              await MoMoPaymentService().createPayment(1000);
+            } else if (selectedPaymentMethod?.name == "Thanh toán tiền mặt") {
+              await saveOrder(
+                cartList: widget.cartList,
+                tongSoLuong: widget.quantityProduct,
+                tongTien: widget.total,
+                phiGiaoHang: shippingFee,
+                thanhTien: widget.totalAmount + shippingFee,
+                maVoucher: widget.selectedVoucher?.maVoucher,
+                hoTen: hoTen!,
+                soDienThoai: soDienThoai!,
+                diaChi: diaChi!,
+                phuong: phuong!,
+                thanhPho: thanhPho!,
+              );
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder:
+                      (_) => CompleteOrderScreen(
+                        orderId:
+                            "CASH_${DateTime.now().millisecondsSinceEpoch}",
+                        totalAmount: widget.totalAmount + shippingFee,
+                        selectedPaymentMethod: selectedPaymentMethod!.name,
+                      ),
+                ),
+              );
+            }
+
+            // final payUrl = await MoMoPaymentService().createPayment(50000);
+            // if (payUrl != null) {
+            //   final result = await Navigator.push(
+            //     context,
+            //     MaterialPageRoute(
+            //       builder: (_) => MomoWebViewScreen(payUrl: payUrl),
+            //     ),
+            //   );
+            //   if (result == true) {
+            //     // Thanh toán xong → chuyển sang màn hình hoàn tất
+            //     Navigator.pushReplacement(
+            //       context,
+            //       MaterialPageRoute(
+            //         builder: (_) => const CompleteOrderScreen(orderId: "123"),
+            //       ),
+            //     );
+            //   }
+            // }
           },
-          icon: Icon(Icons.credit_score_rounded, color: Colors.white),
-          label: Text(
+          icon: const Icon(Icons.credit_score_rounded, color: Colors.white),
+          label: const Text(
             "HOÀN TẤT ĐẶT HÀNG",
             style: TextStyle(
               color: Colors.white,

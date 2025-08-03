@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:the4m_app/screens/cart_screen.dart';
 import 'package:the4m_app/screens/payment_screen.dart';
+import 'package:the4m_app/services/location_service.dart';
 import 'package:the4m_app/utils/smoothPushReplacement.dart';
 import 'package:the4m_app/widgets/devider.dart';
 import 'package:the4m_app/widgets/header.dart';
@@ -13,6 +14,49 @@ class AddAddressScreen extends StatefulWidget {
 }
 
 class _AddAddressScreenState extends State<AddAddressScreen> {
+  List<dynamic> provinces = [];
+  List<dynamic> wards = [];
+
+  @override
+  void initState() {
+    super.initState();
+    loadProvinces();
+  }
+
+  void loadProvinces() async {
+    provinces = await LocationService.fetchProvinces();
+    print(provinces);
+    setState(() {});
+  }
+
+  void loadWards(int provinceCode) async {
+    final districts = await LocationService.fetchDistricts(provinceCode);
+    List<dynamic> allWards = [];
+    for (var district in districts) {
+      final districtWards = await LocationService.fetchWards(district['code']);
+      allWards.addAll(districtWards);
+    }
+    setState(() {
+      wards = allWards;
+    });
+  }
+
+  final hoTenController = TextEditingController();
+  final diaChiController = TextEditingController();
+  final soDienThoaiController = TextEditingController();
+  String? selectedProvince;
+  String? selectedWard;
+
+  @override
+  void dispose() {
+    super.dispose();
+    hoTenController.dispose();
+    diaChiController.dispose();
+    soDienThoaiController.dispose();
+    selectedProvince = null;
+    selectedWard = null;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -37,10 +81,7 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
                             alignment: Alignment.centerLeft,
                             child: GestureDetector(
                               onTap: () {
-                                smoothPushReplacementLikePush(
-                                  context,
-                                  CartScreen(),
-                                );
+                                Navigator.pop(context);
                               },
                               child: Icon(Icons.arrow_back_ios_new_rounded),
                             ),
@@ -49,7 +90,7 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
                             child: Column(
                               children: [
                                 Text(
-                                  "THANH TOÁN",
+                                  "THÔNG TIN GIAO HÀNG",
                                   style: TextStyle(
                                     fontSize: 18,
                                     fontFamily: "TenorSans",
@@ -102,40 +143,148 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
                         children: [
                           // Ho ten
                           LabelText("Họ và tên"),
-                          InputField(initialValue: "Nguyễn Duy Thắng"),
+                          InputField(
+                            controller: hoTenController,
+                            hint: "Nhập họ tên người nhận",
+                          ),
                           SizedBox(height: 16),
                           // Dia chi
                           LabelText("Địa chỉ"),
-                          InputField(initialValue: "312/8/9, Quang Trung"),
+                          InputField(
+                            controller: diaChiController,
+                            hint: "Nhập địa chỉ giao hàng",
+                          ),
                           SizedBox(height: 16),
-                          // Quan & TP
+                          // Phuong & TP
                           Row(
                             children: [
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    LabelText("Phường"),
-                                    CustomDropdown(
-                                      hint: "Chọn Phường",
-                                      items: [
-                                        "Gò Vấp",
-                                        "Phú Nhuận",
-                                        "Tân Bình",
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              SizedBox(width: 20),
+                              // Thanh pho
                               Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     LabelText("Thành phố"),
-                                    CustomDropdown(
-                                      hint: "Chọn TP",
-                                      items: ["TP HCM", "Hà Nội", "Đà Nẵng"],
+                                    DropdownButtonFormField<String>(
+                                      dropdownColor: Colors.white,
+                                      isExpanded: true,
+                                      value: selectedProvince,
+                                      decoration: InputDecoration(
+                                        filled: true,
+                                        fillColor: Colors.white,
+                                        contentPadding: EdgeInsets.symmetric(
+                                          horizontal: 12,
+                                          vertical: 14,
+                                        ),
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            10,
+                                          ),
+                                          borderSide: BorderSide(
+                                            color: Colors.black12,
+                                          ),
+                                        ),
+                                        enabledBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            10,
+                                          ),
+                                          borderSide: BorderSide(
+                                            color: Colors.black26,
+                                          ),
+                                        ),
+                                      ),
+                                      hint: Text(
+                                        "Chọn thành phố",
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontFamily: "NotoSerif_2",
+                                        ),
+                                      ),
+                                      items:
+                                          provinces.map((province) {
+                                            return DropdownMenuItem<String>(
+                                              value:
+                                                  province['code'].toString(),
+                                              child: Text(
+                                                province['name'],
+                                                style: TextStyle(
+                                                  fontSize: 14,
+                                                  fontFamily: "NotoSerif_2",
+                                                ),
+                                              ),
+                                            );
+                                          }).toList(),
+                                      onChanged: (value) {
+                                        setState(() {
+                                          selectedProvince = value;
+                                          selectedWard = null;
+                                          wards.clear();
+                                        });
+                                        loadWards(int.parse(value!));
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              SizedBox(width: 20),
+                              // Phuong
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    LabelText("Phường"),
+                                    DropdownButtonFormField<String>(
+                                      dropdownColor: Colors.white,
+                                      isExpanded: true,
+                                      value: selectedWard,
+                                      decoration: InputDecoration(
+                                        filled: true,
+                                        fillColor: Colors.white,
+                                        contentPadding: EdgeInsets.symmetric(
+                                          horizontal: 12,
+                                          vertical: 14,
+                                        ),
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            10,
+                                          ),
+                                          borderSide: BorderSide(
+                                            color: Colors.black12,
+                                          ),
+                                        ),
+                                        enabledBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            10,
+                                          ),
+                                          borderSide: BorderSide(
+                                            color: Colors.black26,
+                                          ),
+                                        ),
+                                      ),
+                                      hint: Text(
+                                        "Chọn phường",
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontFamily: "NotoSerif_2",
+                                        ),
+                                      ),
+                                      items:
+                                          wards.map((ward) {
+                                            return DropdownMenuItem<String>(
+                                              value: ward['code'].toString(),
+                                              child: Text(
+                                                ward['name'],
+                                                style: TextStyle(
+                                                  fontSize: 14,
+                                                  fontFamily: "NotoSerif_2",
+                                                ),
+                                              ),
+                                            );
+                                          }).toList(),
+                                      onChanged: (value) {
+                                        setState(() {
+                                          selectedWard = value;
+                                        });
+                                      },
                                     ),
                                   ],
                                 ),
@@ -145,7 +294,10 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
                           SizedBox(height: 16),
                           // So dien thoai
                           LabelText("Số điện thoại"),
-                          InputField(initialValue: "0336971705"),
+                          InputField(
+                            controller: soDienThoaiController,
+                            hint: "Nhập số điện thoại",
+                          ),
                         ],
                       ),
                     ),
@@ -176,7 +328,19 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
             shape: RoundedRectangleBorder(),
           ),
           onPressed: () {
-            smoothPushReplacementLikePush(context, PaymentScreen());
+            Navigator.pop(context, {
+              "hoTen": hoTenController.text,
+              "diaChi": diaChiController.text,
+              "soDienThoai": soDienThoaiController.text,
+              "thanhPho":
+                  provinces.firstWhere(
+                    (p) => p['code'].toString() == selectedProvince,
+                  )['name'],
+              "phuong":
+                  wards.firstWhere(
+                    (w) => w['code'].toString() == selectedWard,
+                  )['name'],
+            });
           },
           icon: Icon(Icons.add, color: Colors.white),
           label: Text(
@@ -222,11 +386,13 @@ Widget LabelText(String text) {
   );
 }
 
-Widget InputField({String? initialValue}) {
+Widget InputField({TextEditingController? controller, String? hint}) {
   return TextFormField(
-    initialValue: initialValue,
+    controller: controller,
     style: TextStyle(fontSize: 14, fontFamily: "NotoSerif_2"),
     decoration: InputDecoration(
+      hintText: hint,
+      hintStyle: TextStyle(fontSize: 14, fontFamily: "NotoSerif_2"),
       filled: true,
       fillColor: Colors.white,
       contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 14),
