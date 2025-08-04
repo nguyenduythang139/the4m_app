@@ -31,7 +31,40 @@ class ProductDetailScreen extends StatefulWidget {
   State<ProductDetailScreen> createState() => _ProductDetailScreenState();
 }
 
+List<Review> realReviews = [];
+
 class _ProductDetailScreenState extends State<ProductDetailScreen> {
+  List<Review> realReviews = [];
+
+  Future<void> fetchRealReviews() async {
+    final snapshot =
+        await FirebaseFirestore.instance
+            .collection('DanhGia')
+            .where('productId', isEqualTo: widget.product.maSP)
+            .get();
+
+    final fetchedReviews =
+        snapshot.docs.map((doc) {
+          final data = doc.data();
+          return Review(
+            title: data['title'] ?? 'Đánh giá',
+            date: DateFormat(
+              'dd/MM/yyyy',
+            ).format((data['createdAt'] as Timestamp).toDate()),
+            rating: data['rating'] ?? 0,
+            size: data['size'] ?? '',
+            color: data['color'] ?? '',
+            content: data['review'] ?? '',
+            userName: data['userName'] ?? 'Người dùng',
+            avatarUrl: data['avatarUrl'] ?? 'lib/assets/images/avatar.png',
+          );
+        }).toList();
+
+    setState(() {
+      realReviews = fetchedReviews;
+    });
+  }
+
   final PageController _pageController = new PageController();
   int _currentPage = 0;
   int selectedPage = 0;
@@ -47,6 +80,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   void initState() {
     super.initState();
     fetchVariants();
+    fetchRealReviews();
   }
 
   List<Map<String, dynamic>> allVariants = [];
@@ -142,40 +176,40 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     return formatter.format(amount);
   }
 
-  List<Review> getSampleReviews() {
-    return [
-      Review(
-        title: "Sản phẩm tuyệt vời!",
-        date: "2026-06-23",
-        rating: 5,
-        size: "M",
-        color: "Đen",
-        content: "Giá cả phải chăng, chất vải thoáng mát.",
-        userName: "Thắng Nguyễn",
-        avatarUrl: "lib/assets/images/instagram_1.png",
-      ),
-      Review(
-        title: "Sản phẩm đúng như mô tả",
-        date: "2026-06-20",
-        rating: 4,
-        size: "L",
-        color: "Trắng",
-        content: "Chất lượng vải tốt như mô tả.",
-        userName: "Phước Nguyễn",
-        avatarUrl: "lib/assets/images/instagram_3.png",
-      ),
-      Review(
-        title: "Trên cả mong đợi của tôi",
-        date: "2026-06-19",
-        rating: 4,
-        size: "M",
-        color: "Xanh",
-        content: "Chất vải thoáng mát, mịn màng và thiết kế đẹp mắt.",
-        userName: "Tín Lữ",
-        avatarUrl: "lib/assets/images/instagram_2.png",
-      ),
-    ];
-  }
+  // List<Review> getSampleReviews() {
+  //   return [
+  //     Review(
+  //       title: "Sản phẩm tuyệt vời!",
+  //       date: "2026-06-23",
+  //       rating: 5,
+  //       size: "M",
+  //       color: "Đen",
+  //       content: "Giá cả phải chăng, chất vải thoáng mát.",
+  //       userName: "Thắng Nguyễn",
+  //       avatarUrl: "lib/assets/images/instagram_1.png",
+  //     ),
+  //     Review(
+  //       title: "Sản phẩm đúng như mô tả",
+  //       date: "2026-06-20",
+  //       rating: 4,
+  //       size: "L",
+  //       color: "Trắng",
+  //       content: "Chất lượng vải tốt như mô tả.",
+  //       userName: "Phước Nguyễn",
+  //       avatarUrl: "lib/assets/images/instagram_3.png",
+  //     ),
+  //     Review(
+  //       title: "Trên cả mong đợi của tôi",
+  //       date: "2026-06-19",
+  //       rating: 4,
+  //       size: "M",
+  //       color: "Xanh",
+  //       content: "Chất vải thoáng mát, mịn màng và thiết kế đẹp mắt.",
+  //       userName: "Tín Lữ",
+  //       avatarUrl: "lib/assets/images/instagram_2.png",
+  //     ),
+  //   ];
+  // }
 
   Future<void> addToCart() async {
     final currentUser = FirebaseAuth.instance.currentUser;
@@ -276,7 +310,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     final latest = now.add(Duration(days: 5));
     final dateFormat = DateFormat('dd/MM/yyyy');
 
-    final reviews = getSampleReviews();
+    final reviews = realReviews;
+
     return Scaffold(
       backgroundColor: Colors.white,
       drawer: CustomDrawer(
@@ -726,18 +761,27 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     ),
                     SizedBox(
                       height: 375,
-                      child: SingleChildScrollView(
-                        padding: EdgeInsets.symmetric(horizontal: 10),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            ...reviews
-                                .map((review) => ReviewItem(review: review))
-                                .toList(),
-                          ],
-                        ),
-                      ),
+                      child:
+                          reviews.isEmpty
+                              ? const Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 10),
+                                child: Text(
+                                  "Chưa có đánh giá nào",
+                                  style: TextStyle(fontFamily: "TenorSans"),
+                                ),
+                              )
+                              : SingleChildScrollView(
+                                padding: EdgeInsets.symmetric(horizontal: 10),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children:
+                                      reviews
+                                          .map((r) => ReviewItem(review: r))
+                                          .toList(),
+                                ),
+                              ),
                     ),
+
                     SizedBox(height: 40),
                     Center(
                       child: Padding(
