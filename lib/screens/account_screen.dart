@@ -8,7 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 import 'package:image/image.dart' as img;
-
+import '../screens/notification_screen.dart';
 import '../models/user_provider.dart';
 import '../screens/home_screen.dart';
 import '../screens/login_screen.dart';
@@ -296,6 +296,11 @@ class _Account_ScreenState extends State<Account_Screen>
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => const OrderHistoryScreen()),
+          );
+        } else if (title == 'Thông báo') {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const NotificationScreen()),
           );
         } else if (title == 'Đăng xuất') {
           try {
