@@ -68,6 +68,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final crossAxisCount = screenWidth > 600 ? 3 : 2;
+    final childAspectRatio = (screenWidth / crossAxisCount) / 300;
     return Scaffold(
       backgroundColor: Colors.white,
       drawer: CustomDrawer(
@@ -204,11 +207,11 @@ class _HomeScreenState extends State<HomeScreen> {
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
                             gridDelegate:
-                                const SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: 2,
+                                SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: crossAxisCount,
                                   crossAxisSpacing: 16,
                                   mainAxisSpacing: 20,
-                                  childAspectRatio: 0.7,
+                                  childAspectRatio: childAspectRatio,
                                 ),
                             itemBuilder: (context, index) {
                               final product = limitedProducts[index];

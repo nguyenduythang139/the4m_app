@@ -10,6 +10,7 @@ import 'package:the4m_app/screens/add_address_screen.dart';
 import 'package:the4m_app/screens/complete_order_screen.dart';
 import 'package:the4m_app/screens/voucher_screen.dart';
 import 'package:the4m_app/services/MomoPaymentService.dart';
+import 'package:the4m_app/widgets/cart_notify.dart';
 import 'package:the4m_app/widgets/devider.dart';
 import 'package:the4m_app/widgets/header.dart';
 
@@ -80,6 +81,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
     required int tongSoLuong,
     required int tongTien,
     required int phiGiaoHang,
+    required int thue,
+    required int? giamGia,
     required int thanhTien,
     required String? maVoucher,
     required String hoTen,
@@ -87,6 +90,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
     required String diaChi,
     required String phuong,
     required String thanhPho,
+    required String phuongThucThanhToan,
+    required String phuongThucGiaoHang,
   }) async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
@@ -114,6 +119,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
       "tongSoLuong": tongSoLuong,
       "tongTien": tongTien,
       "phiGiaoHang": phiGiaoHang,
+      "thue": thue,
+      "giamGia": giamGia,
       "thanhTien": thanhTien,
       "maVoucher": maVoucher,
       "trangThai": "Đang giao",
@@ -126,6 +133,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
         "phuong": phuong,
         "thanhPho": thanhPho,
       },
+      "phuongThucThanhToan": phuongThucThanhToan,
+      "phuongThucGiaoHang": phuongThucGiaoHang,
     });
   }
 
@@ -142,6 +151,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
     for (var doc in snapshot.docs) {
       await cartRef.doc(doc.id).delete();
     }
+
+    cartNotify.updateCount(0);
   }
 
   @override
@@ -815,6 +826,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 tongSoLuong: widget.quantityProduct,
                 tongTien: widget.total,
                 phiGiaoHang: shippingFee,
+                thue: widget.tax,
+                giamGia: widget.discount,
                 thanhTien: widget.totalAmount + shippingFee,
                 maVoucher: widget.selectedVoucher?.maVoucher,
                 hoTen: hoTen!,
@@ -822,6 +835,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 diaChi: diaChi!,
                 phuong: phuong!,
                 thanhPho: thanhPho!,
+                phuongThucThanhToan: selectedPaymentMethod!.name,
+                phuongThucGiaoHang: selectedDeliveryMethod!.name,
               );
 
               await clearCart();
