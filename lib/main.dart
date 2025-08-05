@@ -38,37 +38,6 @@ class _MainAppState extends State<MainApp> {
   late final AppLinks _appLinks;
   StreamSubscription<Uri>? _linkSubscription;
 
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   _initDeepLinks();
-  // }
-
-  // Future<void> _initDeepLinks() async {
-  //   _appLinks = AppLinks();
-  //   _linkSubscription = _appLinks.uriLinkStream.listen((Uri? uri) {
-  //     if (uri != null) {
-  //       final resultCode = uri.queryParameters['resultCode'];
-  //       final orderId = uri.queryParameters['orderId'] ?? "";
-  //       if (resultCode == '0') {
-  //         Navigator.push(
-  //           context,
-  //           MaterialPageRoute(
-  //             builder: (_) => CompleteOrderScreen(
-  //               orderId: orderId,
-  //               totalAmount: null, // Không có thông tin từ deep link
-  //             ),
-  //           ),
-  //         );
-  //       } else {
-  //         ScaffoldMessenger.of(context).showSnackBar(
-  //           const SnackBar(content: Text("Thanh toán thất bại hoặc bị hủy")),
-  //         );
-  //       }
-  //     }
-  //   });
-  // }
-
   @override
   void dispose() {
     _linkSubscription?.cancel();
