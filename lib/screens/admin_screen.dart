@@ -157,7 +157,9 @@ class _AdminScreenState extends State<AdminScreen>
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         backgroundColor: Colors.white,
+        centerTitle: true,
         title: const Text('Quản lý đơn hàng'),
         actions: [
           IconButton(
