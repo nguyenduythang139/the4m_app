@@ -409,6 +409,7 @@ class _CartScreenState extends State<CartScreen> {
                   content: Text(
                     "Vui lòng mua ít nhất 1 sản phẩm trong cửa hàng!",
                   ),
+                  backgroundColor: Colors.red,
                 ),
               );
             }

@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:the4m_app/screens/review_products_screen.dart';
 
 class OrderDetailScreen extends StatefulWidget {
   final String orderId;
@@ -27,7 +28,6 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
             .collection('DonHang')
             .doc(widget.orderId)
             .get();
-
     if (doc.exists) {
       setState(() {
         orderData = doc.data();
@@ -390,7 +390,25 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
             Align(
               alignment: Alignment.centerRight,
               child: GestureDetector(
-                onTap: daDanhGia ? null : () {},
+                onTap:
+                    daDanhGia
+                        ? null
+                        : () async {
+                          final result = await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder:
+                                  (_) => ReviewProductScreen(
+                                    orderId: widget.orderId,
+                                    product: product,
+                                  ),
+                            ),
+                          );
+                          if (result == true) {
+                            fetchOrderDetail(); // refresh lại để cập nhật trạng thái đã đánh giá
+                          }
+                        },
+
                 child: Container(
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(5),
@@ -401,7 +419,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                     child: Text(
                       daDanhGia ? "Đã đánh giá" : "Đánh giá sản phẩm",
                       style: TextStyle(
-                        color: daDanhGia ? Colors.grey : Colors.white,
+                        color: daDanhGia ? Colors.white : Colors.white,
                       ),
                     ),
                   ),

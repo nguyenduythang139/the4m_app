@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:the4m_app/models/review_model.dart';
 
@@ -15,6 +16,19 @@ class ReviewItem extends StatelessWidget {
     );
   }
 
+  Widget buildAvatar(String avatarUrl) {
+    if (avatarUrl.startsWith('http')) {
+      return CircleAvatar(radius: 10, backgroundImage: NetworkImage(avatarUrl));
+    } else if (avatarUrl.startsWith('/')) {
+      return CircleAvatar(
+        radius: 10,
+        backgroundImage: FileImage(File(avatarUrl)),
+      );
+    } else {
+      return CircleAvatar(radius: 10, backgroundImage: AssetImage(avatarUrl));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -22,44 +36,41 @@ class ReviewItem extends StatelessWidget {
       children: [
         Text(
           review.title,
-          style: TextStyle(
+          style: const TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 16,
             fontFamily: "TenorSans",
           ),
         ),
-        SizedBox(height: 4),
-        Text(review.date, style: TextStyle(fontFamily: "TenorSans")),
-        SizedBox(height: 4),
+        const SizedBox(height: 4),
+        Text(review.date, style: const TextStyle(fontFamily: "TenorSans")),
+        const SizedBox(height: 4),
         buildStars(review.rating),
-        SizedBox(height: 6),
+        const SizedBox(height: 6),
         Text(
           "KÍCH CỠ: ${review.size}",
-          style: TextStyle(fontSize: 13, fontFamily: "TenorSans"),
+          style: const TextStyle(fontSize: 13, fontFamily: "TenorSans"),
         ),
         Text(
           "MÀU SẮC: ${review.color}",
-          style: TextStyle(fontSize: 13, fontFamily: "TenorSans"),
+          style: const TextStyle(fontSize: 13, fontFamily: "TenorSans"),
         ),
         Text(
           "ĐÁNH GIÁ: ${review.content}",
-          style: TextStyle(fontSize: 13, fontFamily: "TenorSans"),
+          style: const TextStyle(fontSize: 13, fontFamily: "TenorSans"),
         ),
-        SizedBox(height: 10),
+        const SizedBox(height: 10),
         Row(
           children: [
-            CircleAvatar(
-              radius: 10,
-              backgroundImage: AssetImage(review.avatarUrl),
-            ),
-            SizedBox(width: 6),
+            buildAvatar(review.avatarUrl),
+            const SizedBox(width: 6),
             Text(
               review.userName,
-              style: TextStyle(color: Colors.orange, fontSize: 12),
+              style: const TextStyle(color: Colors.orange, fontSize: 12),
             ),
           ],
         ),
-        Divider(height: 30),
+        const Divider(height: 30),
       ],
     );
   }

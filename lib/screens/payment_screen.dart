@@ -6,13 +6,24 @@ import 'package:the4m_app/models/cart.dart';
 import 'package:the4m_app/models/delivery_method_model.dart';
 import 'package:the4m_app/models/payment_method_model.dart';
 import 'package:the4m_app/models/voucher.dart';
+import 'package:the4m_app/screens/account_screen.dart';
 import 'package:the4m_app/screens/add_address_screen.dart';
+import 'package:the4m_app/screens/blog_screen.dart';
 import 'package:the4m_app/screens/complete_order_screen.dart';
+import 'package:the4m_app/screens/contact_screen.dart';
+import 'package:the4m_app/screens/favorite_screen.dart';
+import 'package:the4m_app/screens/home_screen.dart';
+import 'package:the4m_app/screens/our_story_screen.dart';
 import 'package:the4m_app/screens/voucher_screen.dart';
 import 'package:the4m_app/services/MomoPaymentService.dart';
+import 'package:the4m_app/utils/smoothPushReplacement.dart';
 import 'package:the4m_app/widgets/cart_notify.dart';
 import 'package:the4m_app/widgets/devider.dart';
+import 'package:the4m_app/widgets/drawer.dart';
 import 'package:the4m_app/widgets/header.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:url_launcher/url_launcher.dart';
 
 class PaymentScreen extends StatefulWidget {
   final List<Cart> cartList;
@@ -51,6 +62,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
   DeliveryMethodOption? selectedDeliveryMethod;
 
   final List<PaymentMethodOption> paymentMethods = [
+    PaymentMethodOption(name: 'Thanh toán bằng vnpay'),
     PaymentMethodOption(name: 'Thanh toán bằng momo'),
     PaymentMethodOption(name: 'Thanh toán tiền mặt'),
   ];
@@ -155,10 +167,57 @@ class _PaymentScreenState extends State<PaymentScreen> {
     cartNotify.updateCount(0);
   }
 
+  Future<String> createPaymentUrl(int amount, String orderId) async {
+    final uri = Uri.parse(
+      'http://192.168.102.6:3000/api/payments/create_payment_url',
+    );
+    final response = await http.post(
+      uri,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'amount': amount,
+        'orderId': orderId,
+        'orderInfo': 'Thanh toán đơn hàng $orderId',
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      return data['paymentUrl'];
+    } else {
+      throw Exception('Không thể tạo URL thanh toán');
+    }
+  }
+
+  Future<void> openPayment(String url) async {
+    final uri = Uri.parse(url);
+    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+      throw Exception('Không mở được link thanh toán');
+    }
+  }
+
+  Future<bool> checkOrderPaid(String orderId) async {
+    final uri = Uri.parse(
+      'http://192.168.102.6:3000/api/payments/order_status/$orderId',
+    );
+    final response = await http.get(uri);
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      return data['status'] == 'paid';
+    }
+    return false;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
+      drawer: CustomDrawer(
+        selectedPage: "",
+        onSelect: (selected) {
+          smoothPushReplacementLikePush(context, getPageFromLabel(selected));
+        },
+      ),
       body: SafeArea(
         child: Column(
           children: [
@@ -781,7 +840,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                     content: Text("Sản phẩm ${cart.tenSP} không tồn tại."),
                   ),
                 );
-                return; // dừng luôn
+                return;
               }
 
               final stock = variantSnapshot.docs.first['soLuong'] ?? 0;
@@ -793,7 +852,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                     ),
                   ),
                 );
-                return; // dừng luôn
+                return;
               }
             }
 
@@ -818,8 +877,65 @@ class _PaymentScreenState extends State<PaymentScreen> {
                   .doc(docId)
                   .update({'soLuong': currentStock - cart.soLuong});
             }
+            if (hoTen == null ||
+                hoTen!.isEmpty ||
+                diaChi == null ||
+                diaChi!.isEmpty ||
+                soDienThoai == null ||
+                soDienThoai!.isEmpty ||
+                thanhPho == null ||
+                thanhPho!.isEmpty ||
+                phuong == null ||
+                phuong!.isEmpty) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text("Vui lòng nhập đầy đủ thông tin giao hàng."),
+                  backgroundColor: Colors.red,
+                ),
+              );
+              return;
+            }
             if (selectedPaymentMethod?.name == "Thanh toán bằng momo") {
               await MoMoPaymentService().createPayment(1000);
+            } else if (selectedPaymentMethod?.name == "Thanh toán bằng vnpay") {
+              final orderId = "CASH_${DateTime.now().millisecondsSinceEpoch}";
+              final url = await createPaymentUrl(
+                widget.totalAmount + shippingFee,
+                orderId,
+              );
+              await openPayment(url);
+
+              await saveOrder(
+                cartList: widget.cartList,
+                tongSoLuong: widget.quantityProduct,
+                tongTien: widget.total,
+                phiGiaoHang: shippingFee,
+                thue: widget.tax,
+                giamGia: widget.discount,
+                thanhTien: widget.totalAmount + shippingFee,
+                maVoucher: widget.selectedVoucher?.maVoucher,
+                hoTen: hoTen!,
+                soDienThoai: soDienThoai!,
+                diaChi: diaChi!,
+                phuong: phuong!,
+                thanhPho: thanhPho!,
+                phuongThucThanhToan: selectedPaymentMethod!.name,
+                phuongThucGiaoHang: selectedDeliveryMethod!.name,
+              );
+
+              await clearCart();
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder:
+                      (_) => CompleteOrderScreen(
+                        orderId:
+                            "CASH_${DateTime.now().millisecondsSinceEpoch}",
+                        totalAmount: widget.totalAmount + shippingFee,
+                        selectedPaymentMethod: selectedPaymentMethod!.name,
+                      ),
+                ),
+              );
             } else if (selectedPaymentMethod?.name == "Thanh toán tiền mặt") {
               await saveOrder(
                 cartList: widget.cartList,
@@ -902,4 +1018,23 @@ Widget dotLine() {
       ),
     ),
   );
+}
+
+Widget getPageFromLabel(String label) {
+  switch (label) {
+    case "Trang chủ":
+      return HomeScreen();
+    case "Yêu thích":
+      return FavoriteScreen();
+    case "Tài khoản":
+      return Account_Screen();
+    case "Thông tin":
+      return OurStoryScreen();
+    case "Liên lạc":
+      return ContactScreen();
+    case "Blog":
+      return BlogScreen();
+    default:
+      return HomeScreen();
+  }
 }
