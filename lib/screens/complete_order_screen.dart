@@ -1,7 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:the4m_app/screens/account_screen.dart';
+import 'package:the4m_app/screens/blog_screen.dart';
+import 'package:the4m_app/screens/contact_screen.dart';
+import 'package:the4m_app/screens/favorite_screen.dart';
 import 'package:the4m_app/screens/home_screen.dart';
+import 'package:the4m_app/screens/our_story_screen.dart';
+import 'package:the4m_app/utils/smoothPushReplacement.dart';
 import 'package:the4m_app/widgets/devider.dart';
+import 'package:the4m_app/widgets/drawer.dart';
 import 'package:the4m_app/widgets/header.dart';
 
 class CompleteOrderScreen extends StatefulWidget {
@@ -30,6 +37,12 @@ class _CompleteOrderScreenState extends State<CompleteOrderScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
+      drawer: CustomDrawer(
+        selectedPage: "",
+        onSelect: (selected) {
+          smoothPushReplacementLikePush(context, getPageFromLabel(selected));
+        },
+      ),
       body: SafeArea(
         child: Column(
           children: [
@@ -284,4 +297,23 @@ Widget dotLine() {
       ),
     ),
   );
+}
+
+Widget getPageFromLabel(String label) {
+  switch (label) {
+    case "Trang chủ":
+      return HomeScreen();
+    case "Yêu thích":
+      return FavoriteScreen();
+    case "Tài khoản":
+      return Account_Screen();
+    case "Thông tin":
+      return OurStoryScreen();
+    case "Liên lạc":
+      return ContactScreen();
+    case "Blog":
+      return BlogScreen();
+    default:
+      return HomeScreen();
+  }
 }

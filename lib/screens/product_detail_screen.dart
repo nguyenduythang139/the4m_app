@@ -181,7 +181,10 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     final currentUser = FirebaseAuth.instance.currentUser;
     if (currentUser == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Vui lòng đăng nhập để tiếp tục mua hàng")),
+        SnackBar(
+          content: Text("Vui lòng đăng nhập để tiếp tục mua hàng"),
+          backgroundColor: Colors.red,
+        ),
       );
       return;
     }
@@ -199,7 +202,10 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
 
       if (variantQuery.docs.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Biến thể này hiện không tồn tại")),
+          SnackBar(
+            content: Text("Biến thể này hiện không tồn tại"),
+            backgroundColor: Colors.red,
+          ),
         );
         return;
       }
@@ -259,9 +265,12 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       }
 
       cartNotify.increment();
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("Thêm sản phẩm thành công!")));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Thêm sản phẩm thành công!"),
+          backgroundColor: Colors.green,
+        ),
+      );
     } catch (e) {
       ScaffoldMessenger.of(
         context,
