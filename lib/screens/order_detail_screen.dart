@@ -181,8 +181,81 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () {
-                  if (orderData!['trangThai'] == "Đang giao") {
-                  } else if (orderData!['trangThai'] == "Đã giao") {}
+                  if (orderData!['trangThai'] == "Đã giao") {
+                    // Hiển thị thông báo không thể huỷ
+                    showDialog(
+                      context: context,
+                      builder:
+                          (_) => AlertDialog(
+                            title: const Text("Không thể huỷ đơn"),
+                            content: const Text(
+                              "Đơn hàng của bạn đã được giao và không thể huỷ.",
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(context),
+                                child: const Text("Đóng"),
+                              ),
+                            ],
+                          ),
+                    );
+                  } else if (orderData!['trangThai'] == "Đang giao") {
+                    // Hiển thị hộp thoại nhập lý do huỷ
+                    showDialog(
+                      context: context,
+                      builder: (_) {
+                        final TextEditingController reasonController =
+                            TextEditingController();
+
+                        return AlertDialog(
+                          title: const Text("Huỷ đơn hàng"),
+                          content: TextField(
+                            controller: reasonController,
+                            decoration: const InputDecoration(
+                              hintText: "Nhập lý do huỷ đơn hàng",
+                            ),
+                            maxLines: 3,
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context),
+                              child: const Text("Thoát"),
+                            ),
+                            ElevatedButton(
+                              onPressed: () async {
+                                final reason = reasonController.text.trim();
+                                if (reason.isEmpty) return;
+
+                                await FirebaseFirestore.instance
+                                    .collection("DonHang")
+                                    .doc(widget.orderId)
+                                    .update({
+                                      "yeuCauHuy": true,
+                                      "lyDoHuy": reason,
+                                      "thoiGianYeuCauHuy":
+                                          FieldValue.serverTimestamp(),
+                                    });
+
+                                Navigator.pop(context);
+
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                      "Yêu cầu huỷ đơn đã được gửi.",
+                                    ),
+                                    backgroundColor: Colors.orange,
+                                  ),
+                                );
+
+                                fetchOrderDetail(); // Reload đơn hàng
+                              },
+                              child: const Text("Gửi yêu cầu"),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  }
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.red,

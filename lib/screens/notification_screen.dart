@@ -16,7 +16,7 @@ class NotificationScreen extends StatefulWidget {
 }
 
 class _NotificationScreenState extends State<NotificationScreen> {
-  int selectedIndex = 3;
+  int selectedIndex = 4;
   String selectedPage = "Thông báo";
 
   @override
