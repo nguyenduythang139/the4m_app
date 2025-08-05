@@ -310,12 +310,18 @@ class _Account_ScreenState extends State<Account_Screen>
             if (context.mounted) {
               smoothPushReplacementLikePush(context, LoginScreen());
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text("Đăng xuất thành công!")),
+                const SnackBar(
+                  content: Text("Đăng xuất thành công!"),
+                  backgroundColor: Colors.green,
+                ),
               );
             }
           } catch (e) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text("Lỗi đăng xuất, vui lòng thử lại!")),
+              const SnackBar(
+                content: Text("Lỗi đăng xuất, vui lòng thử lại!"),
+                backgroundColor: Colors.red,
+              ),
             );
           }
         }

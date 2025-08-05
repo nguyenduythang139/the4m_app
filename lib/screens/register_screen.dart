@@ -193,7 +193,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
         });
 
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Đăng ký tài khoản thành công!")),
+          SnackBar(
+            content: Text("Đăng ký tài khoản thành công!"),
+            backgroundColor: Colors.green,
+          ),
         );
 
         smoothPushReplacementLikePush(context, LoginScreen());
@@ -207,13 +210,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
           _errorMessage = "Mật khẩu quá yếu!";
         }
 
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(_errorMessage)));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(_errorMessage), backgroundColor: Colors.red),
+        );
       } catch (e) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text("Lỗi không xác định: $e")));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Lỗi không xác định: $e"),
+            backgroundColor: Colors.red,
+          ),
+        );
       }
     }
   }
