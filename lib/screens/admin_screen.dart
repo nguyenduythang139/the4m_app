@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'admin_order_detail_screen.dart';
 import 'login_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:rxdart/rxdart.dart';
 
 class AdminScreen extends StatefulWidget {
   const AdminScreen({super.key});
@@ -125,19 +126,26 @@ class _AdminScreenState extends State<AdminScreen>
   Widget _buildYeuCauHuyTab() {
     final donHangRef = FirebaseFirestore.instance.collection('DonHang');
 
-    final yeuCauHuyQuery = donHangRef.where('yeuCauHuy', isEqualTo: true).get();
-    final daHuyQuery = donHangRef.where('trangThai', isEqualTo: 'Đã huỷ').get();
+    final yeuCauHuyStream =
+        donHangRef.where('yeuCauHuy', isEqualTo: true).snapshots();
+    final daHuyStream =
+        donHangRef.where('trangThai', isEqualTo: 'Đã hủy').snapshots();
 
-    return FutureBuilder<List<QuerySnapshot>>(
-      future: Future.wait([yeuCauHuyQuery, daHuyQuery]),
+    return StreamBuilder<List<QuerySnapshot>>(
+      stream: Rx.combineLatest2(
+        yeuCauHuyStream,
+        daHuyStream,
+        (QuerySnapshot a, QuerySnapshot b) => [a, b],
+      ),
       builder: (context, snapshot) {
-        if (!snapshot.hasData)
+        if (!snapshot.hasData) {
           return const Center(child: CircularProgressIndicator());
+        }
 
         final yeuCauHuyDocs = snapshot.data![0].docs;
         final daHuyDocs = snapshot.data![1].docs;
 
-        // Gộp và loại bỏ trùng nếu có
+        // Gộp và loại bỏ trùng
         final allDocsMap = {
           for (var doc in [...yeuCauHuyDocs, ...daHuyDocs]) doc.id: doc,
         };

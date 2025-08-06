@@ -265,7 +265,9 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                   padding: const EdgeInsets.symmetric(vertical: 14),
                 ),
                 child: Text(
-                  orderData!['trangThai'] == "Đã giao"
+                  orderData!['trangThai'] == "Đã hủy"
+                      ? "Đã hủy"
+                      : orderData!['trangThai'] == "Đã giao"
                       ? "Đổi trả sản phẩm"
                       : "Huỷ đơn hàng",
                   style: const TextStyle(
