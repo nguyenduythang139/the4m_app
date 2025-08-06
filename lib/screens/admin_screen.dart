@@ -36,7 +36,7 @@ class _AdminScreenState extends State<AdminScreen>
 
   void _chapNhanHuy(String maDH) async {
     await FirebaseFirestore.instance.collection('DonHang').doc(maDH).update({
-      'trangThai': 'Đã huỷ',
+      'trangThai': 'Đã hủy',
     });
   }
 
@@ -84,7 +84,7 @@ class _AdminScreenState extends State<AdminScreen>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text('Trạng thái: $trangThai'),
-            Text('Lý do huỷ: $lyDoHuy'),
+            Text('Lý do hủy: $lyDoHuy'),
           ],
         ),
         onTap: () {
@@ -96,11 +96,11 @@ class _AdminScreenState extends State<AdminScreen>
           );
         },
         trailing:
-            trangThai == 'Đã huỷ'
-                ? const Chip(label: Text('Đã huỷ'))
+            trangThai == 'Đã hủy'
+                ? const Chip(label: Text('Đã hủy'))
                 : ElevatedButton(
                   onPressed: () => _chapNhanHuy(maDH),
-                  child: const Text('Chấp nhận huỷ'),
+                  child: const Text('Chấp nhận hủy'),
                 ),
       ),
     );
@@ -152,7 +152,7 @@ class _AdminScreenState extends State<AdminScreen>
         final allDocs = allDocsMap.values.toList();
 
         if (allDocs.isEmpty) {
-          return const Center(child: Text('Không có đơn hàng yêu cầu huỷ'));
+          return const Center(child: Text('Không có đơn hàng yêu cầu hủy'));
         }
 
         return ListView(children: allDocs.map(_buildYeuCauHuyItem).toList());
@@ -189,7 +189,7 @@ class _AdminScreenState extends State<AdminScreen>
           tabs: const [
             Tab(text: 'Đang giao'),
             Tab(text: 'Đã giao'),
-            Tab(text: 'Yêu cầu huỷ'),
+            Tab(text: 'Yêu cầu hủy'),
           ],
         ),
       ),

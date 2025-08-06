@@ -20,7 +20,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
   int selectedIndex = 4;
   String selectedStatus = 'Đang giao';
 
-  final List<String> statuses = ['Đang giao', 'Đã giao', 'Đã hủy'];
+  final List<String> statuses = ['Đang giao', 'Đã giao', 'Đã hủy'];
 
   Future<String?> _getMaKH() async {
     final currentUser = FirebaseAuth.instance.currentUser;
@@ -78,13 +78,11 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
               }
 
               final filteredOrders =
-                  orderSnapshot.data!.docs
-                      .where(
-                        (doc) =>
-                            (doc['trangThai'] as String).toLowerCase() ==
-                            selectedStatus.toLowerCase(),
-                      )
-                      .toList();
+                  orderSnapshot.data!.docs.where((doc) {
+                    final trangThai =
+                        doc['trangThai']?.toString().toLowerCase();
+                    return trangThai == selectedStatus.toLowerCase();
+                  }).toList();
 
               return SingleChildScrollView(
                 padding: const EdgeInsets.symmetric(

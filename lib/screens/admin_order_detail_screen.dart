@@ -26,7 +26,7 @@ class AdminOrderDetailScreen extends StatelessWidget {
     String message =
         status == 'Đã giao'
             ? 'Xác nhận đơn hàng đã được giao?'
-            : 'Bạn có chắc chắn muốn chấp nhận yêu cầu huỷ đơn hàng?';
+            : 'Bạn có chắc chắn muốn chấp nhận yêu cầu hủy đơn hàng?';
 
     showDialog(
       context: context,
@@ -90,9 +90,9 @@ class AdminOrderDetailScreen extends StatelessWidget {
                   style: TextStyle(fontSize: 16),
                 ),
                 SizedBox(height: 8),
-                if (lyDoHuy.isNotEmpty && trangThai == 'Đã huỷ')
+                if (lyDoHuy.isNotEmpty && trangThai == 'Đã hủy')
                   Text(
-                    'Lý do huỷ: $lyDoHuy',
+                    'Lý do hủy: $lyDoHuy',
                     style: TextStyle(fontSize: 16, color: Colors.red),
                   ),
                 Spacer(),
