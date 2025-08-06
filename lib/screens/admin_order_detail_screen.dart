@@ -68,7 +68,8 @@ class AdminOrderDetailScreen extends StatelessWidget {
 
           final data = snapshot.data!;
           final trangThai = data['trangThai'];
-          final lyDoHuy = data['lyDoHuy'] ?? '';
+          final lyDoHuy =
+              data.data().toString().contains('lyDoHuy') ? data['lyDoHuy'] : '';
           final ngayDat = (data['ngayDat'] as Timestamp).toDate();
           final formattedDate = DateFormat('dd/MM/yyyy HH:mm').format(ngayDat);
 
@@ -89,7 +90,7 @@ class AdminOrderDetailScreen extends StatelessWidget {
                   style: TextStyle(fontSize: 16),
                 ),
                 SizedBox(height: 8),
-                if (lyDoHuy.isNotEmpty)
+                if (lyDoHuy.isNotEmpty && trangThai == 'Đã huỷ')
                   Text(
                     'Lý do huỷ: $lyDoHuy',
                     style: TextStyle(fontSize: 16, color: Colors.red),

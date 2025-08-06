@@ -35,46 +35,44 @@ class _NotificationScreenState extends State<NotificationScreen> {
         .snapshots()
         .listen((snapshot) async {
           for (var change in snapshot.docChanges) {
-            if (change.type == DocumentChangeType.modified) {
-              final data = change.doc.data();
-              final trangThai = data?['trangThai'];
-              final maDH = data?['maDH'];
-              final ngayDat = data?['ngayDat'];
+            final data = change.doc.data();
+            final trangThai = data?['trangThai'];
+            final maDH = data?['maDH'];
+            final ngayDat = data?['ngayDat'];
 
-              if (trangThai == null || maDH == null) return;
+            if (trangThai == null || maDH == null) continue;
 
-              String noiDung = '';
-              if (trangThai == 'Đang giao') {
-                noiDung = 'Bạn đã đặt đơn hàng thành công.';
-              } else if (trangThai == 'Đã giao') {
-                noiDung = 'Đơn hàng đã được giao thành công.';
-              } else if (trangThai == 'Đã huỷ') {
-                noiDung = 'Đơn hàng của bạn đã bị huỷ.';
-              }
+            String noiDung = '';
+            if (trangThai == 'Đang giao') {
+              noiDung = 'Bạn đã đặt đơn hàng thành công.';
+            } else if (trangThai == 'Đã giao') {
+              noiDung = 'Đơn hàng đã được giao thành công.';
+            } else if (trangThai == 'Đã huỷ') {
+              noiDung = 'Đơn hàng của bạn đã bị huỷ.';
+            }
 
-              if (noiDung.isNotEmpty) {
-                final thongBaoSnapshot =
-                    await FirebaseFirestore.instance
-                        .collection('TaiKhoan')
-                        .doc(maKH)
-                        .collection('ThongBao')
-                        .where('maDH', isEqualTo: maDH)
-                        .where('trangThai', isEqualTo: trangThai)
-                        .get();
-
-                if (thongBaoSnapshot.docs.isEmpty) {
+            if (noiDung.isNotEmpty) {
+              final thongBaoSnapshot =
                   await FirebaseFirestore.instance
                       .collection('TaiKhoan')
                       .doc(maKH)
                       .collection('ThongBao')
-                      .add({
-                        'noiDung': noiDung,
-                        'maDH': maDH,
-                        'ngayDat': ngayDat ?? Timestamp.now(),
-                        'trangThai': trangThai,
-                        'timestamp': FieldValue.serverTimestamp(),
-                      });
-                }
+                      .where('maDH', isEqualTo: maDH)
+                      .where('trangThai', isEqualTo: trangThai)
+                      .get();
+
+              if (thongBaoSnapshot.docs.isEmpty) {
+                await FirebaseFirestore.instance
+                    .collection('TaiKhoan')
+                    .doc(maKH)
+                    .collection('ThongBao')
+                    .add({
+                      'noiDung': noiDung,
+                      'maDH': maDH,
+                      'ngayDat': ngayDat ?? Timestamp.now(),
+                      'trangThai': trangThai,
+                      'timestamp': FieldValue.serverTimestamp(),
+                    });
               }
             }
           }
